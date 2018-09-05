@@ -12,6 +12,9 @@
     </script>
     <!--Description-->
     
+        <meta name="description" content="题目描述
+Given n non-negative integers a1, a2, …, an , where each represents a point at coordinate (i, ai). n vertical lines are drawn such that the two e">
+    
 
     <!--Author-->
     
@@ -165,7 +168,19 @@
         
 
         <!-- Post Content -->
-        
+        <h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
+<p>Given n non-negative integers a1, a2, …, an , where each represents a point at coordinate (i, ai). n vertical lines are drawn such that the two endpoints of line i is at (i, ai) and (i, 0). Find two lines, which together with x-axis forms a container, such that the container contains the most water.<br><strong>Note:</strong> You may not slant the container and n is at least 2.</p>
+</blockquote>
+<p><img src="/2018/09/05/算法设计与分析-Week1/1.jpg" alt="图1"></p>
+<p>The above vertical lines are represented by array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water (blue section) the container can contain is 49.<br><strong>Example:</strong></p>
+<blockquote>
+<p>Input: [1,8,6,2,5,4,8,3,7]<br>Output: 49</p>
+</blockquote>
+<h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><p>题目要求最大可装水的体积，可装水的体积取决于水桶两边的高以及底边的宽度，根据短板效应，可装水的高度不会超过两边的较短边的高度，因此可装水的体积=水桶两边的较短边的高度*底边的宽度。</p>
+<h3 id="解法一"><a href="#解法一" class="headerlink" title="解法一"></a>解法一</h3><p>暴力求解。将所有边两两组合并求体积，用两重循环即可解决，但时间复杂度为\(O(n^2)\)</p>
+<h3 id="解法二"><a href="#解法二" class="headerlink" title="解法二"></a>解法二</h3><p>先选取最左边和最右边两条边，记录此时的可装水的体积，由于该体积取决于两边的较短边，因此我们希望该较短边越长越好，于是我们将较短边替换成更内层的边，并计算新的可装水体积，与原来的体积作比较取较大值。最后当两边取到同一边时退出循环，得到最大可装水体积，时间复杂度为\(O(n)\)</p>
+<h2 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">class Solution &#123;</span><br><span class="line">public:</span><br><span class="line">    int maxArea(vector&lt;int&gt;&amp; height) &#123;        </span><br><span class="line"></span><br><span class="line">        int left = 0;</span><br><span class="line">        int right = height.size() - 1;</span><br><span class="line"></span><br><span class="line">        int max = containWater(height[left], height[right], right - left);</span><br><span class="line">        while(left &lt; right)&#123;</span><br><span class="line">            if(height[left] &lt; height[right])&#123;</span><br><span class="line">                left++;</span><br><span class="line">                int temp = containWater(height[left], height[right], right - left);</span><br><span class="line">                if(temp &gt; max)&#123;</span><br><span class="line">                    max = temp;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            else&#123;</span><br><span class="line">                right--;</span><br><span class="line">                int temp = containWater(height[left], height[right], right - left);</span><br><span class="line">                if(temp &gt; max)&#123;</span><br><span class="line">                    max = temp;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        return max;</span><br><span class="line">    &#125;</span><br><span class="line">    int containWater(int left, int right, int width)&#123;</span><br><span class="line">        if(left &lt; right) return left * width;</span><br><span class="line">        else return right * width;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
     </div>
 
     
