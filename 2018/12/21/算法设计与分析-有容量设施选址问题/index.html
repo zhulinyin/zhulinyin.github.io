@@ -163,4 +163,4 @@
 </ul>
 <h2 id="实验思考"><a href="#实验思考" class="headerlink" title="实验思考"></a>实验思考</h2><p>在实现贪心算法时，我后来考虑到了把设施的开启费用加进去，我将整个顾客分配损失表assignmentCost每一列加上了对应设施的开启费用，然后重复之前的贪心策略，选取费用最小的进行分配，如果分配成功且之前该设施未开启，就把assignmentCost的该列减去开启费用，即开启该设施。然而做了这个改进之后并没有之前的效果好，感觉应该是因为这种贪心策略会使得很多顾客挤在某几个设施。<br>在实现模拟退火时，一开始我实现了两种邻域搜索策略，即随机将一位顾客分配到另一个设施和随机交换两位顾客，在观察结果时我发现，几乎每个设施都打开了，因此我引入了第三种邻域搜索策略，即随机关闭一个设施，并使得这种操作的概率较低，这样做似乎比较容易跳出局部最优，效果挺好。</p>
 <p>具体每个测试样例的详细结果和项目源码请参考：<a href="https://github.com/zhulinyin/CFLP" target="_blank" rel="noopener">github</a></p>
-</div></header></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
+</div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/算法/">算法</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
