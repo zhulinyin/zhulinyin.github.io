@@ -27,35 +27,35 @@
 <p>如果一个类继承Thread，则不适合资源共享。但是如果实现了Runable接口的话，则很容易的实现资源共享。</p>
 <p><strong>总结：</strong></p>
 <p>实现Runnable接口比继承Thread类所具有的优势：<br>1）：适合多个相同的程序代码的线程去处理同一个资源<br>2）：可以避免java中的单继承的限制<br>3）：增加程序的健壮性，代码可以被多个线程共享，代码和数据独立<br>4）：线程池只能放入实现Runable或callable类线程，不能直接放入继承Thread的类</p>
-<h2 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h2><ol>
+<h2 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h2><ul>
 <li>synchronized</li>
-</ol>
+</ul>
 <p>当修饰普通方法时，同一个对象调用该方法需要获得同步锁，否则阻塞；当修饰静态方法时，会锁住整个类；可修饰一个语句块。</p>
-<ol>
+<ul>
 <li>volatile</li>
-</ol>
+</ul>
 <p>volatile修饰的变量对所有线程可见，当写一个volatile变量时，JMM会把该线程对应的本地内存中的变量强制刷新到主内存中去，这个写操作会导致其他线程中的缓存无效。但是volatile不会提供原子操作，对于复合操作如num++不能实现线程同步。</p>
-<ol>
+<ul>
 <li>ReentrantLock<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">lock.lock();</span><br><span class="line">lock.unlock();</span><br></pre></td></tr></table></figure>
 </li>
-</ol>
+</ul>
 <p>使用<code>lock()</code>加锁，使用<code>unlock()</code>释放锁。</p>
-<ol>
-<li>ThreadLocal</li>
-</ol>
+<ul>
+<li><p>ThreadLocal</p>
 <ul>
 <li>ThreadLocal 并不解决线程间共享数据的问题</li>
 <li>ThreadLocal 通过隐式的在不同线程内创建独立实例副本避免了实例线程安全的问题</li>
 <li>每个线程持有一个 Map 并维护了 ThreadLocal 对象与具体实例的映射，该 Map 由于只被持有它的线程访问，故不存在线程安全以及锁的问题</li>
 <li>ThreadLocal 适用于变量在线程间隔离且在方法间共享的场景</li>
 </ul>
-<ol>
-<li>concurrent</li>
-</ol>
+</li>
+<li><p>concurrent</p>
+</li>
+</ul>
 <p>使用java.util.concurrent包提供的工具，如ConcurrentHashMap。</p>
-<ol>
+<ul>
 <li>concurrent.atomic</li>
-</ol>
+</ul>
 <p>使用java.util.concurrent.atomic包提供的原子变量实现线程同步，如AtomicInteger。</p>
 <h2 id="线程池（ThreadPoolExecutor）"><a href="#线程池（ThreadPoolExecutor）" class="headerlink" title="线程池（ThreadPoolExecutor）"></a>线程池（ThreadPoolExecutor）</h2><p>如果并发的线程数量很多，并且每个线程都是执行一个时间很短的任务就结束了，这样频繁创建线程就会大大降低系统的效率，因为频繁创建线程和销毁线程需要时间，而使用线程池就可以对线程进行复用。</p>
 </div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/Java/">Java</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
