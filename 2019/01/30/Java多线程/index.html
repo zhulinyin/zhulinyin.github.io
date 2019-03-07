@@ -57,5 +57,28 @@
 <li>concurrent.atomic</li>
 </ul>
 <p>使用java.util.concurrent.atomic包提供的原子变量实现线程同步，如AtomicInteger。</p>
-<h2 id="线程池（ThreadPoolExecutor）"><a href="#线程池（ThreadPoolExecutor）" class="headerlink" title="线程池（ThreadPoolExecutor）"></a>线程池（ThreadPoolExecutor）</h2><p>如果并发的线程数量很多，并且每个线程都是执行一个时间很短的任务就结束了，这样频繁创建线程就会大大降低系统的效率，因为频繁创建线程和销毁线程需要时间，而使用线程池就可以对线程进行复用。</p>
+<h2 id="线程池（ThreadPoolExecutor）"><a href="#线程池（ThreadPoolExecutor）" class="headerlink" title="线程池（ThreadPoolExecutor）"></a>线程池（ThreadPoolExecutor）</h2><p>如果并发的线程数量很多，并且每个线程都是执行一个时间很短的任务就结束了，这样频繁创建线程就会大大降低系统的效率，因为频繁创建线程和销毁线程需要时间，而使用线程池就可以对线程进行复用。<a href="https://www.jianshu.com/p/0e4a5e70bf0e" target="_blank" rel="noopener">线程池详解</a></p>
+<p><img src="/2019/01/30/Java多线程/2.png" alt=""></p>
+<h3 id="四种线程池"><a href="#四种线程池" class="headerlink" title="四种线程池"></a>四种线程池</h3><ol>
+<li>定长线程池（FixedThreadPool）<ul>
+<li>特点：只有核心线程 &amp; 不会被回收、线程数量固定、任务队列无大小限制（超出的线程任务会在队列中等待）</li>
+<li>应用场景：控制线程最大并发数</li>
+</ul>
+</li>
+<li>定时线程池（ScheduledThreadPool）<ul>
+<li>特点：核心线程数量固定、非核心线程数量无限制（闲置时马上回收）</li>
+<li>应用场景：执行定时 / 周期性 任务</li>
+</ul>
+</li>
+<li>可缓存线程池（CachedThreadPool）<ul>
+<li>特点：只有非核心线程、线程数量不固定（可无限大）、灵活回收空闲线程（具备超时机制，全部回收时几乎不占系统资源）、新建线程（无线程可用时）、任何线程任务到来都会立刻执行，不需要等待</li>
+<li>应用场景：执行大量、耗时少的线程任务</li>
+</ul>
+</li>
+<li>单线程化线程池（SingleThreadExecutor）<ul>
+<li>特点：只有一个核心线程（保证所有任务按照指定顺序在一个线程中执行，不需要处理线程同步的问题）</li>
+<li>应用场景：不适合并发但可能引起IO阻塞性及影响UI线程响应的操作，如数据库操作，文件操作等</li>
+</ul>
+</li>
+</ol>
 </div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/Java/">Java</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
