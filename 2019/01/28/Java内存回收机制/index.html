@@ -23,4 +23,11 @@
 <li>老年代（Old Generation）<br>当对象在年轻代经历过次次历练后，他终于存活到了老年区，所以老年代中的对象大多都是一些生命周期比较长的对象，老年代也比年轻代分到到的内存要大，默认是1：2。当老年代内存也存满时就会触发一次full GC或者叫major GC，也就是对年轻代老年代都进行回收。</li>
 <li>持久代（Permanent Generation）<br>用于存放静态文件，如Java类、方法等。持久代对垃圾回收没有显著影响，但是有些应用可能动态生成或者调用一些class，例如Hibernate 等，在这种时候需要设置一个比较大的持久代空间来存放这些运行过程中新增的类。</li>
 </ul>
+<h3 id="GC-root"><a href="#GC-root" class="headerlink" title="GC root"></a>GC root</h3><p>GC root是一组根引用，由于Java垃圾回收主要是针对堆内存，因此这些引用则来自于JVM运行时数据区的其它几部分：虚拟机栈，本地方法区，方法区。主要包括：</p>
+<ol>
+<li>虚拟机栈中的局部变量表。</li>
+<li>类的静态属性引用。</li>
+<li>常量对象引用。</li>
+<li>本地方法区中的对象引用。</li>
+</ol>
 </div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/Java/">Java</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
