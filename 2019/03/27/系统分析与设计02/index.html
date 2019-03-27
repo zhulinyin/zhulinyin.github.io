@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Li Jiangtao"><link rel="alternative" href="/atom.xml" title="zhulinyin" type="application/atom+xml"><link rel="icon" href="/favicon.png"><title>系统分析与设计02 - zhulinyin</title><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css"><!--[if lt IE 9]><script>(function(a,b){a="abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup main mark meter nav output progress section summary template time video".split(" ");for(b=a.length-1;b>=0;b--)document.createElement(a[b])})()</script><![endif]--><script src="/js/jquery-3.1.1.min.js"></script><script src="/js/fancybox/jquery.fancybox.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></head><body style="opacity:0"><header class="head"><h1 class="head-title u-fl"><a href="/">zhulinyin</a></h1><nav class="head-nav u-fr"><ul class="head-nav__list"><li class="head-nav__item"><a class="head-nav__link" href="/archives">目录</a></li></ul></nav></header><main class="main"><article class="post"><header class="post__head"> <time class="post__time" datetime="2019-03-27T08:19:28.000Z">March 27, 2019</time><h1 class="post__title"><a href="/2019/03/27/系统分析与设计02/">系统分析与设计02</a></h1><div class="post__main echo"><h1 id="简答题"><a href="#简答题" class="headerlink" title="简答题"></a>简答题</h1><h2 id="用简短的语言给出对分析、设计的理解。"><a href="#用简短的语言给出对分析、设计的理解。" class="headerlink" title="用简短的语言给出对分析、设计的理解。"></a>用简短的语言给出对分析、设计的理解。</h2><ul>
+<li><strong>分析：</strong> 分析关注的是对问题和需求的调查研究，而不关注具体的解决方案。</li>
+<li><strong>设计：</strong> 设计关注的是对问题的解决方案，而不是具体实现。</li>
+</ul>
+<h2 id="用一句话描述面向对象的分析与设计的优势。"><a href="#用一句话描述面向对象的分析与设计的优势。" class="headerlink" title="用一句话描述面向对象的分析与设计的优势。"></a>用一句话描述面向对象的分析与设计的优势。</h2><p>面向对象的分析与设计缩小了项目开发各部分沟通的鸿沟，便于后续工作的展开。</p>
+<h2 id="简述-UML（统一建模语言）的作用。考试考哪些图？"><a href="#简述-UML（统一建模语言）的作用。考试考哪些图？" class="headerlink" title="简述 UML（统一建模语言）的作用。考试考哪些图？"></a>简述 UML（统一建模语言）的作用。考试考哪些图？</h2><p><strong>UML（统一建模语言）的作用：</strong> 将分析与设计的结果可视化，使用统一的建模语言便于程序员理解。</p>
+<p><strong>考试考的图：</strong> </p>
+<ul>
+<li>用例图：用户角度：功能、执行者</li>
+<li>静态图：系统静态结构<ul>
+<li>类图：概念及关系</li>
+<li>对象图：某种状态或时间段内，系统中活跃的对象及其关系</li>
+<li>包图：描述系统的分解结构</li>
+</ul>
+</li>
+<li>行为图：系统的动态行为<ul>
+<li>交互图：描述对象间的消息传递<ul>
+<li>顺序图：强调对象间消息发送的时序</li>
+<li>合作图：强调对象间的动态协作关系</li>
+</ul>
+</li>
+<li>状态图：对象的动态行为。状态-事件-状态迁移-响应动作</li>
+<li>活动图：描述系统为完成某功能而执行的操作序列</li>
+</ul>
+</li>
+<li>实现图：描述系统的组成和分布情况<ul>
+<li>构件图：组成部件及其关系</li>
+<li>部署图：物理体系结构及与软件单元的对应关系</li>
+</ul>
+</li>
+</ul>
+<h2 id="从软件本质的角度，解释软件范围（需求）控制的可行性"><a href="#从软件本质的角度，解释软件范围（需求）控制的可行性" class="headerlink" title="从软件本质的角度，解释软件范围（需求）控制的可行性"></a>从软件本质的角度，解释软件范围（需求）控制的可行性</h2><p>软件的本质决定了软件开发的困难，软件本身具有复杂性、不可见性、不一致性、可变性，因此软件范围在多数情况下对于客户和开发者都是模糊的，但是在保证需求的前提下，可以砍去一些客户都没思考清晰的业务，通过多次反馈和迭代进行开发和升级，使得软件的范围和需求受控。</p>
+<h1 id="项目管理实践"><a href="#项目管理实践" class="headerlink" title="项目管理实践"></a>项目管理实践</h1><h2 id="看板使用练习（提交看板执行结果贴图，建议使用-Git-project）"><a href="#看板使用练习（提交看板执行结果贴图，建议使用-Git-project）" class="headerlink" title="看板使用练习（提交看板执行结果贴图，建议使用 Git project）"></a>看板使用练习（提交看板执行结果贴图，建议使用 Git project）</h2><ul>
+<li>使用截图工具（png格式输出），展现你团队的任务 Kanban</li>
+<li>每个人的任务是明确的。必须一周后可以看到具体结果</li>
+<li>每个人的任务是1-2项</li>
+<li>至少包含一个团队活动任务</li>
+</ul>
+<p><img src="/2019/03/27/系统分析与设计02/看板.png" alt="看板"></p>
+<h2 id="UML绘图工具练习（提交贴图，必须使用-UMLet）"><a href="#UML绘图工具练习（提交贴图，必须使用-UMLet）" class="headerlink" title="UML绘图工具练习（提交贴图，必须使用 UMLet）"></a>UML绘图工具练习（提交贴图，必须使用 UMLet）</h2><p>UML和模式应用（第3版），第9页，图1-6</p>
+<p><img src="/2019/03/27/系统分析与设计02/uml.png" alt="uml"></p>
+</div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/系统分析与设计/">系统分析与设计</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
