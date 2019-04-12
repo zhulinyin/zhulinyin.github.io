@@ -1,0 +1,62 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Li Jiangtao"><link rel="alternative" href="/atom.xml" title="zhulinyin" type="application/atom+xml"><link rel="icon" href="/favicon.png"><title>系统分析与设计03 - zhulinyin</title><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css"><!--[if lt IE 9]><script>(function(a,b){a="abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup main mark meter nav output progress section summary template time video".split(" ");for(b=a.length-1;b>=0;b--)document.createElement(a[b])})()</script><![endif]--><script src="/js/jquery-3.1.1.min.js"></script><script src="/js/fancybox/jquery.fancybox.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></head><body style="opacity:0"><header class="head"><h1 class="head-title u-fl"><a href="/">zhulinyin</a></h1><nav class="head-nav u-fr"><ul class="head-nav__list"><li class="head-nav__item"><a class="head-nav__link" href="/archives">目录</a></li></ul></nav></header><main class="main"><article class="post"><header class="post__head"> <time class="post__time" datetime="2019-04-12T08:24:34.000Z">April 12, 2019</time><h1 class="post__title"><a href="/2019/04/12/系统分析与设计03/">系统分析与设计03</a></h1><div class="post__main echo"><h1 id="简答题"><a href="#简答题" class="headerlink" title="简答题"></a>简答题</h1><h2 id="简述瀑布模型、增量模型、螺旋模型（含原型方法），并分析优缺点。从项目特点、风险特征、人力资源利用角度思考"><a href="#简述瀑布模型、增量模型、螺旋模型（含原型方法），并分析优缺点。从项目特点、风险特征、人力资源利用角度思考" class="headerlink" title="简述瀑布模型、增量模型、螺旋模型（含原型方法），并分析优缺点。从项目特点、风险特征、人力资源利用角度思考"></a>简述瀑布模型、增量模型、螺旋模型（含原型方法），并分析优缺点。从项目特点、风险特征、人力资源利用角度思考</h2><ol>
+<li>瀑布模型<ul>
+<li>优点<ul>
+<li>为项目提供了按阶段划分的检查点。</li>
+<li>当前一阶段完成后，我们只需要去关注后续阶段。</li>
+<li>它提供了一个模板，这个模板使得分析、设计、编码、测试和支持的方法可以在该模板下有一个共同的指导。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>在项目各个阶段之间极少有反馈。</li>
+<li>只有在项目生命周期的后期才能看到结果。</li>
+<li>通过过多的强制完成日期和里程碑来跟踪各个项目阶段。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>增量模型<ul>
+<li>优点<ul>
+<li>将待开发的软件系统模块化，可以分批次地提交软件产品，使用户可以及时了解软件项目的进展。</li>
+<li>以组件为单位进行开发降低了软件开发的风险。一个开发周期内的错误不会影响到整个软件系统。</li>
+<li>开发顺序灵活。开发人员可以对组件的实现顺序进行优先级排序，先完成需求稳定的核心组件。当组件的优先级发生变化时，还能及时地对实现顺序进行调整。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>由于各个构件是逐渐并入已有的软件体系结构中的，所以加入构件必须不破坏已构造好的系统部分，这需要软件具备开放式的体系结构。</li>
+<li>在开发过程中，需求的变化是不可避免的。增量模型的灵活性可以使其适应这种变化的能力大大优于瀑布模型和快速原型模型，但也很容易退化为边做边改模型，从而是软件过程的控制失去整体性。</li>
+<li>如果增量包之间存在相交的情况且未很好处理，则必须做全盘系统分析，这种模型将功能细化后分别开发的方法较适应于需求经常改变的软件开发过程。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>螺旋模型<ul>
+<li>优点<ul>
+<li>设计上的灵活性,可以在项目的各个阶段进行变更。</li>
+<li>以小的分段来构建大型系统,使成本计算变得简单容易。</li>
+<li>客户始终参与每个阶段的开发,保证了项目不偏离正确方向以及项目的可控性。</li>
+<li>随着项目推进,客户始终掌握项目的最新信息 , 从而他或她能够和管理层有效地交互。</li>
+<li>客户认可这种公司内部的开发方式带来的良好的沟通和高质量的产品。</li>
+</ul>
+</li>
+<li>缺点<ul>
+<li>采用螺旋模型需要具有相当丰富的风险评估经验和专门知识，在风险较大的项目开发中，如果未能够及时标识风险，势必造成重大损失。</li>
+<li>过多的迭代次数会增加开发成本，延迟提交时间。<h2 id="简述统一过程三大特点，与面向对象的方法有什么关系？"><a href="#简述统一过程三大特点，与面向对象的方法有什么关系？" class="headerlink" title="简述统一过程三大特点，与面向对象的方法有什么关系？"></a>简述统一过程三大特点，与面向对象的方法有什么关系？</h2>统一过程的三大特点：</li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>软件开发是一个迭代过程。</li>
+<li>软件开发是由Use Case驱动的。</li>
+<li>软件开发是以架构设计为中心的。<br>与面向对象的方法的关系：<br>统一过程是敏捷方法的实践者，在设计阶段，设计类被组织成具有良好接口的设计包（Package）和设计子系统（Subsystem），并体现类的对象之间的作用关系；在实现阶段，以组件的形式（源文件、二进制文件、可执行文件）实现类和对象；在测试和集成阶段，需要测试类本身的功能和类间作用关系。</li>
+</ol>
+</li>
+</ol>
+<h2 id="简述统一过程四个阶段的划分准则是什么？每个阶段关键的里程碑是什么？"><a href="#简述统一过程四个阶段的划分准则是什么？每个阶段关键的里程碑是什么？" class="headerlink" title="简述统一过程四个阶段的划分准则是什么？每个阶段关键的里程碑是什么？"></a>简述统一过程四个阶段的划分准则是什么？每个阶段关键的里程碑是什么？</h2><p>RUP中的软件生命周期在时间上被分解为四个顺序的阶段，分别是：初始阶段(Inception)、细化阶段(Elaboration)、构造阶段(Construction)和交付阶段(Transition)。每个阶段结束于一个主要的里程碑(Major Milestones)；每个阶段本质上是两个里程碑之间的时间跨度。四个阶段的划分准则是在阶段的结尾执行一次评估以确定这个阶段的目标是否已经满足。如果评估结果令人满意的话，可以允许项目进入下一个阶段。</p>
+<ol>
+<li>初始阶段里程碑：生命周期目标(Lifecycle Objective)里程碑。生命周期目标里程碑评价项目基本的生存能力。</li>
+<li>细化阶段里程碑：生命周期结构(Lifecycle Architecture)里程碑。生命周期结构里程碑为系统的结构建立了管理基准并使项目小组能够在构建阶段中进行衡量。此刻，要检验详细的系统目标和范围、结构的选择以及主要风险的解决方案。</li>
+<li>构造阶段里程碑：初始功能(Initial Operational)里程碑。初始功能里程碑决定了产品是否可以在测试环境中进行部署。此刻，要确定软件、环境、用户是否可以开始系统的运作。此时的产品版本也常被称为“beta”版。</li>
+<li>交付阶段里程碑：产品发布(Product Release)里程碑。此时，要确定目标是否实现，是否应该开始另一个开发周期。在一些情况下这个里程碑可能与下一个周期的初始阶段的结束重合。</li>
+</ol>
+<h2 id="软件企业为什么能按固定节奏生产、固定周期发布软件产品？它给企业项目管理带来哪些好处？"><a href="#软件企业为什么能按固定节奏生产、固定周期发布软件产品？它给企业项目管理带来哪些好处？" class="headerlink" title="软件企业为什么能按固定节奏生产、固定周期发布软件产品？它给企业项目管理带来哪些好处？"></a>软件企业为什么能按固定节奏生产、固定周期发布软件产品？它给企业项目管理带来哪些好处？</h2><p>软件企业对软件的生产过程具有明确的阶段划分，由于每个阶段都会有显著的里程碑，使得每个迭代阶段都有明确的目标。各个阶段的生命周期具有固定长度， 所以产品的的迭代开发过程有较为明确的时间限制，因此软件企业能按固定节奏生产、固定周期发布软件产品。每个迭代都是瀑布的工作流程，在迭代内部需求明确的情况下，差错较少。每个迭代在增量且制品可运行，能够及时交付并得到反馈。固定迭代周期有利于量化团队和个人的生产率。</p>
+</div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/系统分析与设计/">系统分析与设计</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
