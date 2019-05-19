@@ -1,0 +1,200 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Li Jiangtao"><link rel="alternative" href="/atom.xml" title="zhulinyin" type="application/atom+xml"><link rel="icon" href="/favicon.png"><title>系统分析与设计04 - zhulinyin</title><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css"><!--[if lt IE 9]><script>(function(a,b){a="abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup main mark meter nav output progress section summary template time video".split(" ");for(b=a.length-1;b>=0;b--)document.createElement(a[b])})()</script><![endif]--><script src="/js/jquery-3.1.1.min.js"></script><script src="/js/fancybox/jquery.fancybox.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></head><body style="opacity:0"><header class="head"><h1 class="head-title u-fl"><a href="/">zhulinyin</a></h1><nav class="head-nav u-fr"><ul class="head-nav__list"><li class="head-nav__item"><a class="head-nav__link" href="/archives">目录</a></li></ul></nav></header><main class="main"><article class="post"><header class="post__head"> <time class="post__time" datetime="2019-05-12T00:42:54.000Z">May 12, 2019</time><h1 class="post__title"><a href="/2019/05/12/系统分析与设计04/">系统分析与设计04</a></h1><div class="post__main echo"><h1 id="1-简答题"><a href="#1-简答题" class="headerlink" title="1. 简答题"></a>1. 简答题</h1><h2 id="1-1-用例的概念"><a href="#1-1-用例的概念" class="headerlink" title="1.1 用例的概念"></a>1.1 用例的概念</h2><p>用例是一系列相关的成功和失败场景的集合，这些场景描述了一个参与者使用一个系统来支持一个目标。用例是软件工程或系统工程中对系统如何反应外界请求的描述，是一种通过用户的使用场景来获取需求的技术。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。</p>
+<h2 id="1-2-用例和场景的关系？什么是主场景或-happy-path？"><a href="#1-2-用例和场景的关系？什么是主场景或-happy-path？" class="headerlink" title="1.2 用例和场景的关系？什么是主场景或 happy path？"></a>1.2 用例和场景的关系？什么是主场景或 happy path？</h2><ul>
+<li>场景是参与者和系统之间一个特定的行为和会话，也被称为用例实例。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。</li>
+<li>主场景/happy path：每个用例提供了一个主场景和若干个可选场景，主场景/happy path对应于主要的系统交互，通常是“成功”的场景，它最常用，直接地实现用户目标的故事，是没有异常或错误条件的默认场景。</li>
+</ul>
+<h2 id="1-3-用例有哪些形式？"><a href="#1-3-用例有哪些形式？" class="headerlink" title="1.3 用例有哪些形式？"></a>1.3 用例有哪些形式？</h2><ul>
+<li>简洁形式：简短的一段总结，通常是主要的成功场景。在早期的需求分析中，快速了解主题和范围。可能只需要几分钟来创建。</li>
+<li>非正式形式：非正式的段落格式，包含多种场景的多个段落。</li>
+<li>完整形式：所有的步骤和变化都写得很详细，并有支持部分，如先决条件和成功的保证。在以一种简短的格式确定并编写了许多用例之后，在第一个需求研讨会期间，会详细地编写一些(例如10%)具有体系结构重要性和高价值的用例。</li>
+</ul>
+<h2 id="1-4-对于复杂业务，为什么编制完整用例非常难？"><a href="#1-4-对于复杂业务，为什么编制完整用例非常难？" class="headerlink" title="1.4 对于复杂业务，为什么编制完整用例非常难？"></a>1.4 对于复杂业务，为什么编制完整用例非常难？</h2><p>对于复杂业务，场景多而复杂，在编制用例时很难不遗漏一些业务和需求，且这些需求还可能发生变化，所以编制完整用例非常困难。</p>
+<h2 id="1-5-什么是用例图？"><a href="#1-5-什么是用例图？" class="headerlink" title="1.5 什么是用例图？"></a>1.5 什么是用例图？</h2><p>用例图是用户与系统交互的最简表示形式，展现了用户和与他相关的用例之间的关系。通过用例图，人们可以获知系统不同种类的用户和用例。用例图也经常和其他图表配合使用。</p>
+<h2 id="1-6-用例图的基本符号与元素？"><a href="#1-6-用例图的基本符号与元素？" class="headerlink" title="1.6 用例图的基本符号与元素？"></a>1.6 用例图的基本符号与元素？</h2><ul>
+<li><p>参与者（Actor）<br>  参与者是与系统交互的人或物。包括开发系统用户和与开发的系统有关联的其他系统。在UML图中用一个小人表示。</p>
+<p>  <img src="/2019/05/12/系统分析与设计04/actor.png" alt=""></p>
+</li>
+<li><p>用例（use case）<br>  用例是参与者可以感受到的系统服务或功能单元。在UML图中用椭圆表示。</p>
+<p>  <img src="/2019/05/12/系统分析与设计04/use case.png" alt=""></p>
+</li>
+<li><p>系统边界（system boundaries）<br>  系统与系统之间的边界。在UML图中用矩形表示。</p>
+<p>  <img src="/2019/05/12/系统分析与设计04/system boundaries.PNG" alt=""></p>
+</li>
+<li><p>关系（relation）<br>  用例图中的关系有4种：关联，泛化，包含和扩展。</p>
+<ul>
+<li><p>关联：表示参与者和用例之间的交互，任何一方都可发送或可接收消息。在UML图中用直线表示。</p>
+<p>  <img src="/2019/05/12/系统分析与设计04/line.png" alt=""></p>
+</li>
+<li><p>泛化：用例的泛化指的是一个父用例可以被特化形成多个子用例，类似于继承。在UML图中用空心箭头表示，箭头指向的是父用例。</p>
+<p>  <img src="/2019/05/12/系统分析与设计04/fanhua.png" alt=""></p>
+</li>
+<li><p>包含：包含关系用来把一个较复杂的用例所表示的功能分解成较小的步骤。在UML图中用带箭头的虚线段加&lt;<include>&gt;表示，箭头指向被包含的用例。</include></p>
+<p>  <img src="/2019/05/12/系统分析与设计04/include.png" alt=""></p>
+</li>
+<li><p>扩展：扩展关系是指用例功能的延伸。与包含关系不同的是，扩展用例是可选的，如果缺少扩展用例。不会影响到基用例的完整性。在UML图中用带箭头的虚线段加&lt;<extends>&gt;表示，箭头指向基用例。</extends></p>
+<p>  <img src="/2019/05/12/系统分析与设计04/extends.png" alt=""></p>
+<h2 id="1-7-用例图的画法与步骤"><a href="#1-7-用例图的画法与步骤" class="headerlink" title="1.7 用例图的画法与步骤"></a>1.7 用例图的画法与步骤</h2></li>
+</ul>
+</li>
+<li>确定参与者<ul>
+<li>谁将使用该系统的主要功能。</li>
+<li>谁将需要该系统的支持以完成其工作。</li>
+<li>谁将需要维护、管理该系统，以及保持该系统处于工作状态。</li>
+<li>系统需要处理哪些硬件设备。</li>
+<li>与该系统那个交互的是什么系统。</li>
+<li>谁或什么系统对本系统产生的结果感兴趣。</li>
+</ul>
+</li>
+<li>识别用例<ul>
+<li>特定参与者希望系统提供什么功能。 </li>
+<li>系统是否存储和检索信息，如果是，由哪个参与者触发。 </li>
+<li>当系统改变状态时，是否通知参与者。 </li>
+<li>是否存在影响系统的外部事件。 </li>
+<li>哪个参与者通知系统这些事件。</li>
+</ul>
+</li>
+<li>识别用例间的关系</li>
+</ul>
+<h2 id="1-8-用例图给利益相关人与开发者的价值有哪些？"><a href="#1-8-用例图给利益相关人与开发者的价值有哪些？" class="headerlink" title="1.8 用例图给利益相关人与开发者的价值有哪些？"></a>1.8 用例图给利益相关人与开发者的价值有哪些？</h2><ul>
+<li>用例已经证实更容易被业务用户理解，因此它也是开发人员和最终用户的很好的沟通桥梁。</li>
+<li>用例对于确定范围很有用。用例使分阶段交付从而一步步完成项目变得容易；它们能够在优先度变化时相对较容易的添加或从软件项目移去。</li>
+<li>用例可跟踪。</li>
+<li>用例能够作为估计，制定进度和验证成果的基础。</li>
+<li>用例防止了不成熟的设计。</li>
+<li>用例不使用特定语言。</li>
+<li>用例允许我们去讲故事。能够容易的采用将需求转换为故事或场景这一具体的方法来描述用例。</li>
+<li>用例在项目中可复用。用例在每一次迭代中都能进一步演化，用例可以用于捕获需求，成为程序员的开发依据，发展为测试用例，到最后成为用户手册。</li>
+<li>用例与用户和系统交互相关。它们使软件开发者在开发之前或当中就能够开始用户接口设计。</li>
+<li>用例将需求置于上下文中，它们能够清楚地描述业务活动间的关系。</li>
+</ul>
+<h1 id="2-建模练习题（用例模型）"><a href="#2-建模练习题（用例模型）" class="headerlink" title="2. 建模练习题（用例模型）"></a>2. 建模练习题（用例模型）</h1><h2 id="2-1-选择2-3个你熟悉的类似业务的在线服务系统（或移动-APP），如定旅馆（携程、去哪儿等）、定电影票、背单词APP等，分别绘制它们用例图。并满足以下要求："><a href="#2-1-选择2-3个你熟悉的类似业务的在线服务系统（或移动-APP），如定旅馆（携程、去哪儿等）、定电影票、背单词APP等，分别绘制它们用例图。并满足以下要求：" class="headerlink" title="2.1 选择2-3个你熟悉的类似业务的在线服务系统（或移动 APP），如定旅馆（携程、去哪儿等）、定电影票、背单词APP等，分别绘制它们用例图。并满足以下要求："></a>2.1 选择2-3个你熟悉的类似业务的在线服务系统（或移动 APP），如定旅馆（携程、去哪儿等）、定电影票、背单词APP等，分别绘制它们用例图。并满足以下要求：</h2><ul>
+<li>请使用用户的视角，描述用户目标或系统提供的服务</li>
+<li>粒度达到子用例级别，并用 include 和 exclude 关联它们</li>
+<li>请用色彩标注出你认为创新（区别于竞争对手的）用例或子用例</li>
+<li>尽可能识别外部系统和服务</li>
+</ul>
+<p><img src="/2019/05/12/系统分析与设计04/taobao.PNG" alt=""></p>
+<p><img src="/2019/05/12/系统分析与设计04/wangyi.PNG" alt=""></p>
+<h2 id="2-2-回答下列问题："><a href="#2-2-回答下列问题：" class="headerlink" title="2.2 回答下列问题："></a>2.2 回答下列问题：</h2><h3 id="2-2-1-为什么相似系统的用例图是相似的？"><a href="#2-2-1-为什么相似系统的用例图是相似的？" class="headerlink" title="2.2.1 为什么相似系统的用例图是相似的？"></a>2.2.1 为什么相似系统的用例图是相似的？</h3><p>因为在相似的系统中，用户的需求是相似的，所以这些系统有着类似的功能，提供给用户类似的服务，因此它们的用例图是相似的。</p>
+<h3 id="2-2-2-如果是定旅馆业务，请对比-Asg-RH-用例图，简述如何利用不同时代、不同地区产品的用例图，展现、突出创新业务和技术"><a href="#2-2-2-如果是定旅馆业务，请对比-Asg-RH-用例图，简述如何利用不同时代、不同地区产品的用例图，展现、突出创新业务和技术" class="headerlink" title="2.2.2 如果是定旅馆业务，请对比 Asg_RH 用例图，简述如何利用不同时代、不同地区产品的用例图，展现、突出创新业务和技术"></a>2.2.2 如果是定旅馆业务，请对比 Asg_RH 用例图，简述如何利用不同时代、不同地区产品的用例图，展现、突出创新业务和技术</h3><p>在Asg_RH用例图中，当搜索不到用户指定的城市时，会提供用户搜索地点的服务；而在当今时代的去哪儿定旅馆业务中，不会出现搜索不到的情况，该系统利用先进的技术，智能匹配与用户输入最接近的城市。从对比中可以发现，不同时代对于相同的业务有可能有不同的需求，因此在软件发展的过程中，我们需要更新用例图，采用更先进的技术，展现、突出创新业务。</p>
+<h3 id="2-2-3-如何利用用例图定位创新思路（业务创新、或技术创新、或商业模式创新）在系统中的作用"><a href="#2-2-3-如何利用用例图定位创新思路（业务创新、或技术创新、或商业模式创新）在系统中的作用" class="headerlink" title="2.2.3 如何利用用例图定位创新思路（业务创新、或技术创新、或商业模式创新）在系统中的作用"></a>2.2.3 如何利用用例图定位创新思路（业务创新、或技术创新、或商业模式创新）在系统中的作用</h3><p>对于不同方面的创新的用例，使用不同颜色背景的用例图表示，直观地观察其在系统中的作用。如果创新位于较高的父级，则作用比较大。如果是子类或者是被包括的关系，则作用相对较小。</p>
+<h3 id="2-2-4-请使用-SCRUM-方法，选择一个用例图，编制某定旅馆开发的需求（backlog）开发计划表"><a href="#2-2-4-请使用-SCRUM-方法，选择一个用例图，编制某定旅馆开发的需求（backlog）开发计划表" class="headerlink" title="2.2.4 请使用 SCRUM 方法，选择一个用例图，编制某定旅馆开发的需求（backlog）开发计划表"></a>2.2.4 请使用 SCRUM 方法，选择一个用例图，编制某定旅馆开发的需求（backlog）开发计划表</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">ID</th>
+<th style="text-align:center">Name</th>
+<th style="text-align:center">Imp</th>
+<th style="text-align:center">Est</th>
+<th style="text-align:center">How to Demo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">注册</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">点击注册按钮，输入手机号，获取验证码，正确填写验证码，输入密码</td>
+</tr>
+<tr>
+<td style="text-align:center">2</td>
+<td style="text-align:center">登录</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">点击登录，输入手机号，选择密码登录或短信验证码登录，填写密码或获取验证码并正确填写验证码</td>
+</tr>
+<tr>
+<td style="text-align:center">3</td>
+<td style="text-align:center">查询酒店</td>
+<td style="text-align:center">15</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">通过位置、种类、价格、档次等属性筛选或排序酒店，或直接通过酒店名查找酒店</td>
+</tr>
+<tr>
+<td style="text-align:center">4</td>
+<td style="text-align:center">预订酒店</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">15</td>
+<td style="text-align:center">选择酒店后，选择房间类型，根据条件筛选房间，确定入住日期，提交订单</td>
+</tr>
+<tr>
+<td style="text-align:center">5</td>
+<td style="text-align:center">支付</td>
+<td style="text-align:center">20</td>
+<td style="text-align:center">15</td>
+<td style="text-align:center">选择支付类型，支付订单</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">评价</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">5</td>
+<td style="text-align:center">交易完成后，可选择对酒店进行评论以及评分</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="2-2-5-根据任务4，参考使用用例点估算软件成本-给出项目用例点的估算"><a href="#2-2-5-根据任务4，参考使用用例点估算软件成本-给出项目用例点的估算" class="headerlink" title="2.2.5 根据任务4，参考使用用例点估算软件成本 给出项目用例点的估算"></a>2.2.5 根据任务4，参考<a href="https://www.ibm.com/developerworks/cn/rational/edge/09/mar09/collaris_dekker/index.html" target="_blank" rel="noopener">使用用例点估算软件成本</a> 给出项目用例点的估算</h3><ul>
+<li>简单用例：1到3个事务，权重=5</li>
+<li>一般用例：4到7个事务，权重=10</li>
+<li>复杂用例：多于7个事务，权重=15</li>
+</ul>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">用例</th>
+<th style="text-align:center">事务</th>
+<th style="text-align:center">计算</th>
+<th style="text-align:center">原因</th>
+<th style="text-align:center">UC权重</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">注册</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">简单</td>
+</tr>
+<tr>
+<td style="text-align:center">登录</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">简单</td>
+</tr>
+<tr>
+<td style="text-align:center">查询酒店</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center">7</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">一般</td>
+</tr>
+<tr>
+<td style="text-align:center">预订酒店</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center">4</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">一般</td>
+</tr>
+<tr>
+<td style="text-align:center">支付</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">简单</td>
+</tr>
+<tr>
+<td style="text-align:center">评价</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">2</td>
+<td style="text-align:center"></td>
+<td style="text-align:center">简单</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/系统分析与设计/">系统分析与设计</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
