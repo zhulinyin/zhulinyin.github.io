@@ -1,4 +1,400 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Li Jiangtao"><link rel="alternative" href="/atom.xml" title="zhulinyin" type="application/atom+xml"><link rel="icon" href="/favicon.png"><title>系统分析与设计04 - zhulinyin</title><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css"><!--[if lt IE 9]><script>(function(a,b){a="abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup main mark meter nav output progress section summary template time video".split(" ");for(b=a.length-1;b>=0;b--)document.createElement(a[b])})()</script><![endif]--><script src="/js/jquery-3.1.1.min.js"></script><script src="/js/fancybox/jquery.fancybox.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></head><body style="opacity:0"><header class="head"><h1 class="head-title u-fl"><a href="/">zhulinyin</a></h1><nav class="head-nav u-fr"><ul class="head-nav__list"><li class="head-nav__item"><a class="head-nav__link" href="/archives">目录</a></li></ul></nav></header><main class="main"><article class="post"><header class="post__head"> <time class="post__time" datetime="2019-05-12T00:42:54.000Z">May 12, 2019</time><h1 class="post__title"><a href="/2019/05/12/系统分析与设计04/">系统分析与设计04</a></h1><div class="post__main echo"><h1 id="1-简答题"><a href="#1-简答题" class="headerlink" title="1. 简答题"></a>1. 简答题</h1><h2 id="1-1-用例的概念"><a href="#1-1-用例的概念" class="headerlink" title="1.1 用例的概念"></a>1.1 用例的概念</h2><p>用例是一系列相关的成功和失败场景的集合，这些场景描述了一个参与者使用一个系统来支持一个目标。用例是软件工程或系统工程中对系统如何反应外界请求的描述，是一种通过用户的使用场景来获取需求的技术。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。</p>
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="1. 简答题1.1 用例的概念用例是一系列相关的成功和失败场景的集合，这些场景描述了一个参与者使用一个系统来支持一个目标。用例是软件工程或系统工程中对系统如何反应外界请求的描述，是一种通过用户的使用场景来获取需求的技术。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。 1.2 用例和场景的关系？什么是主场景或 ha">
+<meta name="keywords" content="系统分析与设计">
+<meta property="og:type" content="article">
+<meta property="og:title" content="系统分析与设计04">
+<meta property="og:url" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/index.html">
+<meta property="og:site_name" content="zhulinyin">
+<meta property="og:description" content="1. 简答题1.1 用例的概念用例是一系列相关的成功和失败场景的集合，这些场景描述了一个参与者使用一个系统来支持一个目标。用例是软件工程或系统工程中对系统如何反应外界请求的描述，是一种通过用户的使用场景来获取需求的技术。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。 1.2 用例和场景的关系？什么是主场景或 ha">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/actor.png">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/use%20case.png">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/system%20boundaries.PNG">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/line.png">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/fanhua.png">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/include.png">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/extends.png">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/taobao.PNG">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/wangyi.PNG">
+<meta property="og:updated_time" content="2019-05-19T09:44:35.557Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="系统分析与设计04">
+<meta name="twitter:description" content="1. 简答题1.1 用例的概念用例是一系列相关的成功和失败场景的集合，这些场景描述了一个参与者使用一个系统来支持一个目标。用例是软件工程或系统工程中对系统如何反应外界请求的描述，是一种通过用户的使用场景来获取需求的技术。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。 1.2 用例和场景的关系？什么是主场景或 ha">
+<meta name="twitter:image" content="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/actor.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>系统分析与设计04 | zhulinyin</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zhulinyin</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="accessibility.nav_toggle">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/05/12/系统分析与设计04/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">系统分析与设计04
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">post.posted</span>
+              
+
+              
+                
+              
+
+              <time title="post.createdsymbol.colon2019-05-12 08:42:54" itemprop="dateCreated datePublished" datetime="2019-05-12T08:42:54+08:00">2019-05-12</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">post.edited</span>
+                
+                <time title="post.modifiedsymbol.colon2019-05-19 17:44:35" itemprop="dateModified" datetime="2019-05-19T17:44:35+08:00">2019-05-19</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-简答题"><a href="#1-简答题" class="headerlink" title="1. 简答题"></a>1. 简答题</h1><h2 id="1-1-用例的概念"><a href="#1-1-用例的概念" class="headerlink" title="1.1 用例的概念"></a>1.1 用例的概念</h2><p>用例是一系列相关的成功和失败场景的集合，这些场景描述了一个参与者使用一个系统来支持一个目标。用例是软件工程或系统工程中对系统如何反应外界请求的描述，是一种通过用户的使用场景来获取需求的技术。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。</p>
 <h2 id="1-2-用例和场景的关系？什么是主场景或-happy-path？"><a href="#1-2-用例和场景的关系？什么是主场景或-happy-path？" class="headerlink" title="1.2 用例和场景的关系？什么是主场景或 happy path？"></a>1.2 用例和场景的关系？什么是主场景或 happy path？</h2><ul>
 <li>场景是参与者和系统之间一个特定的行为和会话，也被称为用例实例。每个用例提供了一个或多个场景，该场景说明了系统是如何和最终用户或其它系统互动，也就是谁可以用系统做什么，从而获得一个明确的业务目标。</li>
 <li>主场景/happy path：每个用例提供了一个主场景和若干个可选场景，主场景/happy path对应于主要的系统交互，通常是“成功”的场景，它最常用，直接地实现用户目标的故事，是没有异常或错误条件的默认场景。</li>
@@ -199,4 +595,387 @@
 </tbody>
 </table>
 </div>
-</div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/系统分析与设计/">系统分析与设计</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/系统分析与设计/" rel="tag"># 系统分析与设计</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/12/系统分析与设计03/" rel="next" title="系统分析与设计03">
+                <i class="fa fa-chevron-left"></i> 系统分析与设计03
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            sidebar.toc
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            sidebar.overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Li Jiangtao</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">state.posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">state.tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-简答题"><span class="nav-number">1.</span> <span class="nav-text">1. 简答题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-用例的概念"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 用例的概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-用例和场景的关系？什么是主场景或-happy-path？"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 用例和场景的关系？什么是主场景或 happy path？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-用例有哪些形式？"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 用例有哪些形式？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-4-对于复杂业务，为什么编制完整用例非常难？"><span class="nav-number">1.4.</span> <span class="nav-text">1.4 对于复杂业务，为什么编制完整用例非常难？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-5-什么是用例图？"><span class="nav-number">1.5.</span> <span class="nav-text">1.5 什么是用例图？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-6-用例图的基本符号与元素？"><span class="nav-number">1.6.</span> <span class="nav-text">1.6 用例图的基本符号与元素？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-7-用例图的画法与步骤"><span class="nav-number">1.7.</span> <span class="nav-text">1.7 用例图的画法与步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-8-用例图给利益相关人与开发者的价值有哪些？"><span class="nav-number">1.8.</span> <span class="nav-text">1.8 用例图给利益相关人与开发者的价值有哪些？</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-建模练习题（用例模型）"><span class="nav-number">2.</span> <span class="nav-text">2. 建模练习题（用例模型）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-选择2-3个你熟悉的类似业务的在线服务系统（或移动-APP），如定旅馆（携程、去哪儿等）、定电影票、背单词APP等，分别绘制它们用例图。并满足以下要求："><span class="nav-number">2.1.</span> <span class="nav-text">2.1 选择2-3个你熟悉的类似业务的在线服务系统（或移动 APP），如定旅馆（携程、去哪儿等）、定电影票、背单词APP等，分别绘制它们用例图。并满足以下要求：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-回答下列问题："><span class="nav-number">2.2.</span> <span class="nav-text">2.2 回答下列问题：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-为什么相似系统的用例图是相似的？"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.2.1 为什么相似系统的用例图是相似的？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-如果是定旅馆业务，请对比-Asg-RH-用例图，简述如何利用不同时代、不同地区产品的用例图，展现、突出创新业务和技术"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2.2 如果是定旅馆业务，请对比 Asg_RH 用例图，简述如何利用不同时代、不同地区产品的用例图，展现、突出创新业务和技术</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-3-如何利用用例图定位创新思路（业务创新、或技术创新、或商业模式创新）在系统中的作用"><span class="nav-number">2.2.3.</span> <span class="nav-text">2.2.3 如何利用用例图定位创新思路（业务创新、或技术创新、或商业模式创新）在系统中的作用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-4-请使用-SCRUM-方法，选择一个用例图，编制某定旅馆开发的需求（backlog）开发计划表"><span class="nav-number">2.2.4.</span> <span class="nav-text">2.2.4 请使用 SCRUM 方法，选择一个用例图，编制某定旅馆开发的需求（backlog）开发计划表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-5-根据任务4，参考使用用例点估算软件成本-给出项目用例点的估算"><span class="nav-number">2.2.5.</span> <span class="nav-text">2.2.5 根据任务4，参考使用用例点估算软件成本 给出项目用例点的估算</span></a></li></ol></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Li Jiangtao</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">footer.powered v3.7.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">footer.theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

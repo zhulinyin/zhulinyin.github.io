@@ -1,4 +1,390 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Li Jiangtao"><link rel="alternative" href="/atom.xml" title="zhulinyin" type="application/atom+xml"><link rel="icon" href="/favicon.png"><title>Java的四种引用方式 - zhulinyin</title><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css"><!--[if lt IE 9]><script>(function(a,b){a="abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup main mark meter nav output progress section summary template time video".split(" ");for(b=a.length-1;b>=0;b--)document.createElement(a[b])})()</script><![endif]--><script src="/js/jquery-3.1.1.min.js"></script><script src="/js/fancybox/jquery.fancybox.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></head><body style="opacity:0"><header class="head"><h1 class="head-title u-fl"><a href="/">zhulinyin</a></h1><nav class="head-nav u-fr"><ul class="head-nav__list"><li class="head-nav__item"><a class="head-nav__link" href="/archives">目录</a></li></ul></nav></header><main class="main"><article class="post"><header class="post__head"> <time class="post__time" datetime="2019-01-28T11:52:22.000Z">January 28, 2019</time><h1 class="post__title"><a href="/2019/01/28/Java的四种引用方式/">Java的四种引用方式</a></h1><div class="post__main echo"><p>java对象的引用包括强引用，软引用，弱引用，虚引用。Java中提供这四种引用类型主要有两个目的：一是可以让程序员通过代码的方式决定某些对象的生命周期；二是有利于JVM进行垃圾回收。</p>
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="java对象的引用包括强引用，软引用，弱引用，虚引用。Java中提供这四种引用类型主要有两个目的：一是可以让程序员通过代码的方式决定某些对象的生命周期；二是有利于JVM进行垃圾回收。 强引用强引用是指创建一个对象并把这个对象赋给一个引用变量。例如：12Object object =new Object();String str =&quot;hello&quot;; 强引用有引用变量指向时永远不会被垃圾回收，JVM宁">
+<meta name="keywords" content="Java">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java的四种引用方式">
+<meta property="og:url" content="http://zhulinyin.github.io/2019/01/28/Java的四种引用方式/index.html">
+<meta property="og:site_name" content="zhulinyin">
+<meta property="og:description" content="java对象的引用包括强引用，软引用，弱引用，虚引用。Java中提供这四种引用类型主要有两个目的：一是可以让程序员通过代码的方式决定某些对象的生命周期；二是有利于JVM进行垃圾回收。 强引用强引用是指创建一个对象并把这个对象赋给一个引用变量。例如：12Object object =new Object();String str =&quot;hello&quot;; 强引用有引用变量指向时永远不会被垃圾回收，JVM宁">
+<meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2019-03-01T12:03:04.615Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Java的四种引用方式">
+<meta name="twitter:description" content="java对象的引用包括强引用，软引用，弱引用，虚引用。Java中提供这四种引用类型主要有两个目的：一是可以让程序员通过代码的方式决定某些对象的生命周期；二是有利于JVM进行垃圾回收。 强引用强引用是指创建一个对象并把这个对象赋给一个引用变量。例如：12Object object =new Object();String str =&quot;hello&quot;; 强引用有引用变量指向时永远不会被垃圾回收，JVM宁">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://zhulinyin.github.io/2019/01/28/Java的四种引用方式/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Java的四种引用方式 | zhulinyin</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zhulinyin</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="accessibility.nav_toggle">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java的四种引用方式/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Java的四种引用方式
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">post.posted</span>
+              
+
+              
+                
+              
+
+              <time title="post.createdsymbol.colon2019-01-28 19:52:22" itemprop="dateCreated datePublished" datetime="2019-01-28T19:52:22+08:00">2019-01-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">post.edited</span>
+                
+                <time title="post.modifiedsymbol.colon2019-03-01 20:03:04" itemprop="dateModified" datetime="2019-03-01T20:03:04+08:00">2019-03-01</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>java对象的引用包括强引用，软引用，弱引用，虚引用。Java中提供这四种引用类型主要有两个目的：一是可以让程序员通过代码的方式决定某些对象的生命周期；二是有利于JVM进行垃圾回收。</p>
 <h3 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h3><p>强引用是指创建一个对象并把这个对象赋给一个引用变量。例如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Object object =<span class="keyword">new</span> Object();</span><br><span class="line">String str =<span class="string">"hello"</span>;</span><br></pre></td></tr></table></figure></p>
 <p>强引用有引用变量指向时永远不会被垃圾回收，JVM宁愿抛出OutOfMemory错误也不会回收这种对象。可以显示地将引用赋值为null，JVM就会在合适的时间回收该对象。</p>
 <h3 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h3><p>如果一个对象具有软引用，内存空间足够，垃圾回收器就不会回收它；如果内存空间不足了，垃圾收集线程会在虚拟机抛出OutOfMemoryError之前回收软可及对象，而且<strong>虚拟机会尽可能优先回收长时间闲置不用的软可及对象，对那些刚刚构建的或刚刚使用过的“新”软可反对象会被虚拟机尽可能保留</strong>（软引用有两个特殊的变量：clock——记录上一次GC的时间；timestamp——记录该变量上一次get的时间。这两个变量之差表示<strong>这个软引用对象距离上次GC时一直没被使用的时间</strong>，当这个差值大于阈值_max_interval（该阈值由上一次GC后剩余可用空间计算得出，空间越大，该阈值越大）时，则该对象标记为可废弃的，将在下一次GC时回收）。只要垃圾回收器没有回收它，该对象就可以被程序使用。软引用可用来实现内存敏感的高速缓存,比如网页缓存、图片缓存等。使用软引用能防止内存泄露，增强程序的健壮性。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MyObject aRef = <span class="keyword">new</span>  MyObject();  </span><br><span class="line">SoftReference aSoftRef=<span class="keyword">new</span> SoftReference(aRef); </span><br><span class="line">aRef = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure></p>
@@ -11,4 +397,391 @@
 <p>第二个输出结果是null，这说明只要JVM进行垃圾回收，被弱引用关联的对象必定会被回收掉。不过要注意的是，这里所说的被弱引用关联的对象是指只有弱引用与之关联，如果存在强引用同时与之关联，则进行垃圾回收时也不会回收该对象（软引用也是如此）。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">    People people=<span class="keyword">new</span> People(<span class="string">"zhouqian"</span>,<span class="number">20</span>);  </span><br><span class="line">    WeakReference&lt;People&gt;reference=<span class="keyword">new</span> WeakReference&lt;People&gt;(people);</span><br><span class="line">    System.out.println(reference.get());  </span><br><span class="line">    System.gc();  </span><br><span class="line">    System.out.println(reference.get());  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>两个输出结果相同。</p>
 <h3 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h3><p>虚引用和前面的软引用、弱引用不同，它并不影响对象的生命周期。如果一个对象与虚引用关联，则跟没有引用与之关联一样，在任何时候都可能被垃圾回收器回收。 <strong>为一个对象设置虚引用关联的唯一目的就是能在这个对象被收集器回收时收到一个系统通知。</strong> 虚引用必须和引用队列关联使用，当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会把这个虚引用加入到与之关联的引用队列中。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">    ReferenceQueue&lt;String&gt; queue = <span class="keyword">new</span> ReferenceQueue&lt;String&gt;();  </span><br><span class="line">    PhantomReference&lt;String&gt; pr = <span class="keyword">new</span> PhantomReference&lt;String&gt;(<span class="keyword">new</span> String(<span class="string">"hello"</span>), queue);  </span><br><span class="line">    System.out.println(pr.get());  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-</div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/Java/">Java</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag"># Java</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/28/Java关键字及其作用/" rel="next" title="Java关键字及其作用">
+                <i class="fa fa-chevron-left"></i> Java关键字及其作用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/01/29/Touch事件分发机制/" rel="prev" title="Touch事件分发机制">
+                Touch事件分发机制 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            sidebar.toc
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            sidebar.overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Li Jiangtao</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">state.posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">state.tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#强引用"><span class="nav-number">1.</span> <span class="nav-text">强引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#软引用"><span class="nav-number">2.</span> <span class="nav-text">软引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#弱引用"><span class="nav-number">3.</span> <span class="nav-text">弱引用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#虚引用"><span class="nav-number">4.</span> <span class="nav-text">虚引用</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Li Jiangtao</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">footer.powered v3.7.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">footer.theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

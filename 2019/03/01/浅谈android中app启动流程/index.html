@@ -1,7 +1,744 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="author" content="Li Jiangtao"><link rel="alternative" href="/atom.xml" title="zhulinyin" type="application/atom+xml"><link rel="icon" href="/favicon.png"><title>浅谈android中app启动流程 - zhulinyin</title><link rel="stylesheet" href="/css/main.css"><link rel="stylesheet" href="/js/fancybox/jquery.fancybox.min.css"><!--[if lt IE 9]><script>(function(a,b){a="abbr article aside audio bdi canvas data datalist details dialog figcaption figure footer header hgroup main mark meter nav output progress section summary template time video".split(" ");for(b=a.length-1;b>=0;b--)document.createElement(a[b])})()</script><![endif]--><script src="/js/jquery-3.1.1.min.js"></script><script src="/js/fancybox/jquery.fancybox.min.js"></script><script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script></head><body style="opacity:0"><header class="head"><h1 class="head-title u-fl"><a href="/">zhulinyin</a></h1><nav class="head-nav u-fr"><ul class="head-nav__list"><li class="head-nav__item"><a class="head-nav__link" href="/archives">目录</a></li></ul></nav></header><main class="main"><article class="post"><header class="post__head"> <time class="post__time" datetime="2019-03-01T03:14:45.000Z">March 1, 2019</time><h1 class="post__title"><a href="/2019/03/01/浅谈android中app启动流程/">浅谈android中app启动流程</a></h1><div class="post__main echo"><ol>
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+<meta name="theme-color" content="#222"/>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2"/>
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.1"/>
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.1">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.1">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.1" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '7.1.1',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="从ActivityThread.java中的main()方法开始，初始化Looper，实例化ActivityThread，发送创建Application的消息，开启Looper的无限循环状态，接收消息。 发送创建Application的消息：通过Binder与AMS通信，通知AMS发送H.BIND_APPLICATION消息到主Handler中，主Handler接收到消息后，调用handleBi">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅谈android中app启动流程">
+<meta property="og:url" content="http://zhulinyin.github.io/2019/03/01/浅谈android中app启动流程/index.html">
+<meta property="og:site_name" content="zhulinyin">
+<meta property="og:description" content="从ActivityThread.java中的main()方法开始，初始化Looper，实例化ActivityThread，发送创建Application的消息，开启Looper的无限循环状态，接收消息。 发送创建Application的消息：通过Binder与AMS通信，通知AMS发送H.BIND_APPLICATION消息到主Handler中，主Handler接收到消息后，调用handleBi">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://zhulinyin.github.io/2019/03/01/浅谈android中app启动流程/1.jpg">
+<meta property="og:updated_time" content="2019-03-01T05:15:08.834Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅谈android中app启动流程">
+<meta name="twitter:description" content="从ActivityThread.java中的main()方法开始，初始化Looper，实例化ActivityThread，发送创建Application的消息，开启Looper的无限循环状态，接收消息。 发送创建Application的消息：通过Binder与AMS通信，通知AMS发送H.BIND_APPLICATION消息到主Handler中，主Handler接收到消息后，调用handleBi">
+<meta name="twitter:image" content="http://zhulinyin.github.io/2019/03/01/浅谈android中app启动流程/1.jpg">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://zhulinyin.github.io/2019/03/01/浅谈android中app启动流程/"/>
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>浅谈android中app启动流程 | zhulinyin</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">zhulinyin</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="accessibility.nav_toggle">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br/>home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br/>archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+    
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/03/01/浅谈android中app启动流程/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅谈android中app启动流程
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">post.posted</span>
+              
+
+              
+                
+              
+
+              <time title="post.createdsymbol.colon2019-03-01 11:14:45 / post.modifiedsymbol.colon13:15:08" itemprop="dateCreated datePublished" datetime="2019-03-01T11:14:45+08:00">2019-03-01</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <ol>
 <li>从<code>ActivityThread.java</code>中的<code>main()</code>方法开始，初始化Looper，实例化ActivityThread，发送创建Application的消息，开启Looper的无限循环状态，接收消息。</li>
 <li><strong>发送创建Application的消息</strong>：通过Binder与AMS通信，通知AMS发送H.BIND_APPLICATION消息到主Handler中，主Handler接收到消息后，调用<code>handleBindApplication()</code>方法，初始化Instrumentation，通过Instrumentation调用Application的<code>onCreate()</code>方法从而创建了Application。</li>
 <li>当Application初始化完成后，系统会根据Manifests中配置的启动Activity发送一个Intent去启动相应的Activity。通过AMS发送H.LAUNCH_ACTIVITY消息到主Handler中，主Hnadler接收到消息后，调用<code>handleLaunchActivity()</code>方法，该方法通过Instrumentation调用Activity的<code>onCreate()</code>创建activity。</li>
 </ol>
 <p><img src="/2019/03/01/浅谈android中app启动流程/1.jpg" alt="图片来自 https://www.jianshu.com/p/9ecea420eb52"></p>
-</div></header><footer class="post__foot u-cf"><ul class="post__tag u-fl"><li class="post__tag__item"><a class="post__tag__link" href="/tags/Android/">Android</a></li></ul></footer></article></main><footer class="foot"><div class="foot-copy">&copy; 2018-2019 Li Jiangtao</div></footer><script src="/js/scroller.js"></script><script src="/js/main.js"></script></body></html>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/02/26/Java中的装箱和拆箱/" rel="next" title="Java中的装箱和拆箱">
+                <i class="fa fa-chevron-left"></i> Java中的装箱和拆箱
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/03/05/算法设计与分析-Week20/" rel="prev" title="算法设计与分析-Week20">
+                算法设计与分析-Week20 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Li Jiangtao</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-name">state.posts</span>
+                  </a>
+                </div>
+              
+
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">13</span>
+                    <span class="site-state-item-name">state.tags</span>
+                  
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Li Jiangtao</span>
+
+  
+
+  
+</div>
+
+
+  <div class="powered-by">footer.powered v3.7.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">footer.theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.1</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.1"></script>
+
+  <script src="/js/motion.js?v=7.1.1"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.1"></script>
+<script src="/js/post-details.js?v=7.1.1"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.1"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
