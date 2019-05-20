@@ -372,24 +372,20 @@
       
         
           
-            <p>用一个最常见的例子来总结handler的机制：子线程处理耗时操作，然后通知主线程更新UI。</p>
-<h3 id="1-在主线程创建handler对象"><a href="#1-在主线程创建handler对象" class="headerlink" title="1. 在主线程创建handler对象"></a>1. 在主线程创建handler对象</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Handler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Handler</span><span class="params">(Callback callback, <span class="keyword">boolean</span> async)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    ...<span class="comment">// 仅贴出关键代码</span></span><br><span class="line"></span><br><span class="line">    mLooper = Looper.myLooper();</span><br><span class="line">    <span class="keyword">if</span> (mLooper == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(</span><br><span class="line">            <span class="string">"Can't create handler inside thread that has not called Looper.prepare()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    mQueue = mLooper.mQueue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>创建handler对象的过程会绑定当前线程的looper和该looper的消息队列，主线程的looper在主线程创建时就通过<code>Looper.prepareMainLooper()</code>创建，而子线程要创建looper应该使用<code>Looper.prepare()</code>，因此在子线程创建handler时应先调用<code>Looper.prepare()</code>创建looper。looper在创建的时候就会创建其消息队列。</p>
-<h3 id="2-在子线程处理完耗时操作后通过主线程的handler发送消息"><a href="#2-在子线程处理完耗时操作后通过主线程的handler发送消息" class="headerlink" title="2. 在子线程处理完耗时操作后通过主线程的handler发送消息"></a>2. 在子线程处理完耗时操作后通过主线程的handler发送消息</h3><p>发送消息有两种方式：</p>
-<ol>
-<li><code>sendMessage(Message msg)</code></li>
-<li><code>post(Runnable r)</code></li>
-</ol>
-<p>两者最后均为调用<code>sendMessageAtTime(Message msg, long uptimeMillis)</code>，区别在于后者的<code>msg.callback = r</code>。消息队列会根据消息处理的时间将消息放在合适的位置，而不是直接放在队尾。</p>
-<h3 id="3-主线程的looper会不断从消息队列中取出消息进行分发"><a href="#3-主线程的looper会不断从消息队列中取出消息进行分发" class="headerlink" title="3. 主线程的looper会不断从消息队列中取出消息进行分发"></a>3. 主线程的looper会不断从消息队列中取出消息进行分发</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...<span class="comment">// 仅贴出关键代码</span></span><br><span class="line">    <span class="keyword">final</span> Looper me = myLooper();</span><br><span class="line">    <span class="keyword">if</span> (me == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"No Looper; Looper.prepare() wasn't called on this thread."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// myLooper()作用：返回sThreadLocal存储的Looper实例；若me为null 则抛出异常</span></span><br><span class="line">    <span class="comment">// 即loop（）执行前必须执行prepare（），从而创建1个Looper实例</span></span><br><span class="line">            </span><br><span class="line">    <span class="keyword">final</span> MessageQueue queue = me.mQueue;</span><br><span class="line">    <span class="comment">// 获取Looper实例中的消息队列对象（MessageQueue）</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    </span><br><span class="line">        Message msg = queue.next(); </span><br><span class="line">        <span class="keyword">if</span> (msg == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// next()：取出消息队列里的消息</span></span><br><span class="line"></span><br><span class="line">        msg.target.dispatchMessage(msg);</span><br><span class="line">        <span class="comment">// 把消息Message派发给消息对象msg的target属性</span></span><br><span class="line">        <span class="comment">// target属性实际是1个handler对象</span></span><br><span class="line"></span><br><span class="line">        msg.recycle();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><code>loop()</code>首先获取当前线程的looper，因此调用该函数之前必须确定当前线程已经创建了looper。通过一个死循环，从消息队列里取出消息进行分发。</p>
-<p><strong>注意：</strong> 当消息队列没有消息取出来时，主线程会阻塞在loop的<code>queue.next()</code>中的<code>nativePollOnce()</code>方法里，此时主线程会释放CPU资源进入休眠状态，直到下个消息到达或者有事务发生，重新唤醒主线程工作，所以大多数时候主线程处于休眠状态，不会消耗大量CPU资源。</p>
-<h3 id="4-消息会被分发到指定的handler进行处理，更新UI"><a href="#4-消息会被分发到指定的handler进行处理，更新UI" class="headerlink" title="4. 消息会被分发到指定的handler进行处理，更新UI"></a>4. 消息会被分发到指定的handler进行处理，更新UI</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dispatchMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 若msg.callback属性不为空，则代表使用了post（Runnable r）发送消息</span></span><br><span class="line">    <span class="comment">// 则执行handleCallback(msg)，即回调Runnable对象里复写的run（）</span></span><br><span class="line">    <span class="keyword">if</span> (msg.callback != <span class="keyword">null</span>) &#123;</span><br><span class="line">        handleCallback(msg);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (mCallback != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (mCallback.handleMessage(msg)) &#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 若msg.callback属性为空，则代表使用了sendMessage（Message msg）发送消息</span></span><br><span class="line">        <span class="comment">// 则执行handleMessage(msg)，即回调重写的handleMessage(msg) </span></span><br><span class="line">        handleMessage(msg);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">handleCallback</span><span class="params">(Message message)</span> </span>&#123;</span><br><span class="line">    message.callback.run();</span><br><span class="line">    <span class="comment">// Message对象的callback属性 = 传入的Runnable对象</span></span><br><span class="line">    <span class="comment">// 即回调Runnable对象里复写的run（）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="关于内存泄漏"><a href="#关于内存泄漏" class="headerlink" title="关于内存泄漏"></a>关于内存泄漏</h3><p>由于Java的非静态内部类和匿名内部类会隐式地持有外部类的引用，所以下面的代码会存在内存泄漏的问题。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SampleActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Handler mLeakyHandler = <span class="keyword">new</span> Handler() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Post a message and delay its execution for 10 minutes.</span></span><br><span class="line">        mLeakyHandler.postDelayed(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">        &#125;, <span class="number">1000</span> * <span class="number">60</span> * <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Go back to the previous Activity.</span></span><br><span class="line">        finish();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>当activity被finish的时候，延迟发送的消息仍然会存活在UI线程的消息队列中，直到10分钟后它被处理掉。这个消息持有activity的Handler的引用，Handler又隐式的持有它的外部类(这里就是SampleActivity)的引用。这个引用会一直存在直到这个消息被处理，所以垃圾回收机制就没法回收这个activity，内存泄露就发生了。需要注意的是：匿名Runnable子类也会导致内存泄露。非静态的匿名类会隐式的持有外部类的引用，所以context会被泄露掉。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SampleActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Instances of static inner classes do not hold an implicit</span></span><br><span class="line"><span class="comment">    * reference to their outer class.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> WeakReference&lt;SampleActivity&gt; mActivity;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyHandler</span><span class="params">(SampleActivity activity)</span> </span>&#123;</span><br><span class="line">            mActivity = <span class="keyword">new</span> WeakReference&lt;SampleActivity&gt;(activity);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">            SampleActivity activity = mActivity.get();</span><br><span class="line">            <span class="keyword">if</span> (activity != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// ...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MyHandler mHandler = <span class="keyword">new</span> MyHandler(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Instances of anonymous classes do not hold an implicit</span></span><br><span class="line"><span class="comment">    * reference to their outer class when they are "static".</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Runnable sRunnable = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Post a message and delay its execution for 10 minutes.</span></span><br><span class="line">        mHandler.postDelayed(sRunnable, <span class="number">1000</span> * <span class="number">60</span> * <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Go back to the previous Activity.</span></span><br><span class="line">        finish();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>实现Handler的子类或者使用static修饰内部类。静态的内部类不会持有外部类的引用，所以activity不会被泄露。如果要在Handler内调用外部activity类的方法的话，可以让Handler持有外部activity类的弱引用，这样也不会有泄露activity的风险。关于匿名类造成的泄露问题，我们可以用static修饰这个匿名类对象解决这个问题，因为静态的匿名类也不会持有它外部类的引用。</p>
-
+            <p>
+              用一个最常见的例子来总结handler的机制：子线程处理耗时操作，然后通知主线程更新UI。
+1. 在主线程创建handler对象public Handler() &#123;    this(null
+              ...
+            </p>
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/31/handler机制总结/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -542,91 +538,22 @@
       
         
           
-            <h2 id="线程状态"><a href="#线程状态" class="headerlink" title="线程状态"></a>线程状态</h2><p><img src="/2019/01/30/Java多线程/1.png" alt=""></p>
-<ol>
-<li><strong>新建状态（New）：</strong> 新创建一个线程对象。</li>
-<li><strong>就绪状态（Runnable）：</strong> 线程对象创建后，其他线程调用了该对象的start()方法。该状态的线程位于可运行线程池中，变得可运行，等待获取CPU的使用权。</li>
-<li><strong>运行状态（Running）：</strong> 就绪状态的线程获取了CPU，执行程序代码。</li>
-<li><strong>阻塞状态（Blocked）：</strong> 阻塞状态是线程因为某种原因放弃CPU使用权，暂时停止运行。直到线程进入就绪状态，才有机会转到运行状态。阻塞的情况分三种：<br>（1）等待阻塞：运行的线程执行wait()方法，JVM会把该线程放入等待池中。(wait会释放持有的锁)<br>（2）同步阻塞：运行的线程在获取对象的同步锁时，若该同步锁被别的线程占用，则JVM会把该线程放入锁池中。<br>（3）其他阻塞：运行的线程执行sleep()或join()方法，或者发出了I/O请求时，JVM会把该线程置为阻塞状态。当sleep()状态结束、join()状态中断、或者I/O处理完毕时，线程重新转入就绪状态。（注意,sleep不会释放持有的锁）</li>
-<li><strong>死亡状态（Dead）：</strong> 线程执行完了或者因异常退出了run()方法，该线程结束生命周期。</li>
-</ol>
-<h2 id="线程调度"><a href="#线程调度" class="headerlink" title="线程调度"></a>线程调度</h2><p>Java的线程调度是抢占式调度，线程具有线程优先级（Thread.MIN_PRIORITY至Thread.MAX_PRIORITY），共十个级别（1-10），当两个线程均处于就绪状态时，优先级越高的线程越容易被系统选择执行。但是Java线程是通过映射到系统的原生线程上来实现的，所以线程调度最终还是取决于操作系统。</p>
-<h2 id="常用函数"><a href="#常用函数" class="headerlink" title="常用函数"></a>常用函数</h2><ol>
-<li><code>Thread.sleep(long millis)：</code>使线程转到阻塞状态。millis参数设定睡眠的时间，以毫秒为单位。当睡眠结束后，转为就绪（Runnable）状态。<code>sleep()</code>平台移植性好。<code>sleep()</code>不释放锁。</li>
-<li><code>Object.wait()：</code>使当前的线程等待，直到其他线程调用此对象的 <code>notify()</code> 方法或 <code>notifyAll()</code> 唤醒方法。这两个唤醒方法也是Object类中的方法，行为等价于调用 <code>wait(0)</code> 一样。</li>
-<li><code>Thread.yield()：</code>暂停当前正在执行的线程对象，使当前线程转为就绪状态。</li>
-<li><code>Thread.join()：</code>等待其他线程终止。在当前线程中调用另一个线程的join()方法，则当前线程转入阻塞状态，直到另一个进程运行结束，当前线程再由阻塞转为就绪状态。</li>
-<li><code>Object.notify()/Object.notifyAll()：</code>唤醒在此对象监视器上等待的单个/全部线程。<code>wait()/notify()/notifyAll()</code>都应该在<code>synchronized</code>修饰的块中执行。</li>
-</ol>
-<h2 id="多线程实现方式"><a href="#多线程实现方式" class="headerlink" title="多线程实现方式"></a>多线程实现方式</h2><ol>
-<li><p>继承Thread，实现run函数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Thread1</span> <span class="keyword">extends</span> <span class="title">Thread</span></span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="comment">//执行操作</span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">        Thread1 mTh1=<span class="keyword">new</span> Thread1();  </span><br><span class="line">        mTh1.start();  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>实现Runnable接口，实现run函数</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Thread1</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="comment">//执行操作</span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">new</span> Thread(<span class="keyword">new</span> Thread1()).start();</span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>Thread和Runnable的区别</p>
-</li>
-</ol>
-<p>如果一个类继承Thread，则不适合资源共享。但是如果实现了Runable接口的话，则很容易的实现资源共享。</p>
-<p><strong>总结：</strong></p>
-<p>实现Runnable接口比继承Thread类所具有的优势：<br>1）：适合多个相同的程序代码的线程去处理同一个资源<br>2）：可以避免java中的单继承的限制<br>3）：增加程序的健壮性，代码可以被多个线程共享，代码和数据独立<br>4）：线程池只能放入实现Runable或callable类线程，不能直接放入继承Thread的类</p>
-<h2 id="线程同步"><a href="#线程同步" class="headerlink" title="线程同步"></a>线程同步</h2><ul>
-<li>synchronized</li>
-</ul>
-<p>当修饰普通方法时，同一个对象调用该方法需要获得同步锁，否则阻塞；当修饰静态方法时，会锁住整个类；可修饰一个语句块。</p>
-<ul>
-<li>volatile</li>
-</ul>
-<p>volatile修饰的变量对所有线程可见，当写一个volatile变量时，JMM会把该线程对应的本地内存中的变量强制刷新到主内存中去，这个写操作会导致其他线程中的缓存无效。但是volatile不会提供原子操作，对于复合操作如num++不能实现线程同步。</p>
-<ul>
-<li>ReentrantLock<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Lock lock = <span class="keyword">new</span> ReentrantLock();</span><br><span class="line">lock.lock();</span><br><span class="line">lock.unlock();</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>使用<code>lock()</code>加锁，使用<code>unlock()</code>释放锁。</p>
-<ul>
-<li><p>ThreadLocal</p>
-<ul>
-<li>ThreadLocal 并不解决线程间共享数据的问题</li>
-<li>ThreadLocal 通过隐式的在不同线程内创建独立实例副本避免了实例线程安全的问题</li>
-<li>每个线程持有一个 Map 并维护了 ThreadLocal 对象与具体实例的映射，该 Map 由于只被持有它的线程访问，故不存在线程安全以及锁的问题</li>
-<li>ThreadLocal 适用于变量在线程间隔离且在方法间共享的场景</li>
-</ul>
-</li>
-<li><p>concurrent</p>
-</li>
-</ul>
-<p>使用java.util.concurrent包提供的工具，如ConcurrentHashMap。</p>
-<ul>
-<li>concurrent.atomic</li>
-</ul>
-<p>使用java.util.concurrent.atomic包提供的原子变量实现线程同步，如AtomicInteger。</p>
-<h2 id="线程池（ThreadPoolExecutor）"><a href="#线程池（ThreadPoolExecutor）" class="headerlink" title="线程池（ThreadPoolExecutor）"></a>线程池（ThreadPoolExecutor）</h2><p>如果并发的线程数量很多，并且每个线程都是执行一个时间很短的任务就结束了，这样频繁创建线程就会大大降低系统的效率，因为频繁创建线程和销毁线程需要时间，而使用线程池就可以对线程进行复用。<a href="https://www.jianshu.com/p/0e4a5e70bf0e" target="_blank" rel="noopener">线程池详解</a></p>
-<p><img src="/2019/01/30/Java多线程/2.png" alt=""></p>
-<h3 id="四种线程池"><a href="#四种线程池" class="headerlink" title="四种线程池"></a>四种线程池</h3><ol>
-<li>定长线程池（FixedThreadPool）<ul>
-<li>特点：只有核心线程 &amp; 不会被回收、线程数量固定、任务队列无大小限制（超出的线程任务会在队列中等待）</li>
-<li>应用场景：控制线程最大并发数</li>
-</ul>
-</li>
-<li>定时线程池（ScheduledThreadPool）<ul>
-<li>特点：核心线程数量固定、非核心线程数量无限制（闲置时马上回收）</li>
-<li>应用场景：执行定时 / 周期性 任务</li>
-</ul>
-</li>
-<li>可缓存线程池（CachedThreadPool）<ul>
-<li>特点：只有非核心线程、线程数量不固定（可无限大）、灵活回收空闲线程（具备超时机制，全部回收时几乎不占系统资源）、新建线程（无线程可用时）、任何线程任务到来都会立刻执行，不需要等待</li>
-<li>应用场景：执行大量、耗时少的线程任务</li>
-</ul>
-</li>
-<li>单线程化线程池（SingleThreadExecutor）<ul>
-<li>特点：只有一个核心线程（保证所有任务按照指定顺序在一个线程中执行，不需要处理线程同步的问题）</li>
-<li>应用场景：不适合并发但可能引起IO阻塞性及影响UI线程响应的操作，如数据库操作，文件操作等</li>
-</ul>
-</li>
-</ol>
+            <p>
+              线程状态
 
+新建状态（New）： 新创建一个线程对象。
+就绪状态（Runnable）： 线程对象创建后，其他线程调用了该对象的start()方法。该状态的线程位于可运行线程池中，变得可运行，等待获取C
+              ...
+            </p>
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/30/Java多线程/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -779,18 +706,21 @@
       
         
           
-            <p><img src="/2019/01/29/Touch事件分发机制/1.png" alt=""></p>
-<ol>
-<li>Touch事件分发中只有两个主角:ViewGroup和View。ViewGroup包含onInterceptTouchEvent、dispatchTouchEvent、onTouchEvent三个相关事件。View包含dispatchTouchEvent、onTouchEvent两个相关事件。其中ViewGroup又继承于View。</li>
-<li>ViewGroup和View组成了一个树状结构，根节点为Activity内部包含的一个ViewGroup。</li>
-<li>触摸事件由Action_Down、Action_Move、Aciton_UP组成，其中一次完整的触摸事件中，Down和Up都只有一个，Move有若干个，可以为0个。</li>
-<li>当Acitivty接收到Touch事件时，将调用其ViewGroup的dispatchTouchEvent函数，该函数会递归地调用其子View的dispatchTouchEvent函数，遍历子View进行Down事件的分发。分发的目的是为了找到真正要处理本次完整触摸事件的View，这个View会在onTouchEvent函数中返回true。</li>
-<li>当某个子View返回true时，会中止Down事件的分发，同时在ViewGroup中记录该子View。接下去的Move和Up事件将由该子View直接进行处理。由于子View是保存在ViewGroup中的，多层ViewGroup的节点结构时，上级ViewGroup保存的会是真实处理事件的View所在的ViewGroup对象:如ViewGroup0-ViewGroup1-TextView的结构中，TextView返回了true，它将被保存在ViewGroup1中，而ViewGroup1也会返回true，被保存在ViewGroup0中。当Move和UP事件来时，会先从ViewGroup0传递至ViewGroup1，再由ViewGroup1传递至TextView。</li>
-<li>当ViewGroup中所有子View都不捕获Down事件时，将触发ViewGroup自身的onTouchEvent事件。触发的方式是调用super.dispatchTouchEvent函数，即父类View的dispatchTouchEvent方法。在所有子View都不处理的情况下，触发Acitivity的onTouchEvent方法。</li>
-<li>onInterceptTouchEvent有两个作用：1.拦截Down事件的分发。2.中止Up和Move事件向目标View传递，使得目标View所在的ViewGroup捕获Up和Move事件。当子控件已经接收到前驱事件如Down事件，而后续事件被父控件拦截时，子控件会收到Cancel事件。</li>
-</ol>
+            <p>
+              
 
+Touch事件分发中只有两个主角:ViewGroup和View。ViewGroup包含onInterceptTouchEvent、dispatchTouchEvent、onTouchEvent三个
+              ...
+            </p>
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/29/Touch事件分发机制/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -943,207 +873,20 @@
       
         
           
-            <p>java对象的引用包括强引用，软引用，弱引用，虚引用。Java中提供这四种引用类型主要有两个目的：一是可以让程序员通过代码的方式决定某些对象的生命周期；二是有利于JVM进行垃圾回收。</p>
-<h3 id="强引用"><a href="#强引用" class="headerlink" title="强引用"></a>强引用</h3><p>强引用是指创建一个对象并把这个对象赋给一个引用变量。例如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Object object =<span class="keyword">new</span> Object();</span><br><span class="line">String str =<span class="string">"hello"</span>;</span><br></pre></td></tr></table></figure></p>
-<p>强引用有引用变量指向时永远不会被垃圾回收，JVM宁愿抛出OutOfMemory错误也不会回收这种对象。可以显示地将引用赋值为null，JVM就会在合适的时间回收该对象。</p>
-<h3 id="软引用"><a href="#软引用" class="headerlink" title="软引用"></a>软引用</h3><p>如果一个对象具有软引用，内存空间足够，垃圾回收器就不会回收它；如果内存空间不足了，垃圾收集线程会在虚拟机抛出OutOfMemoryError之前回收软可及对象，而且<strong>虚拟机会尽可能优先回收长时间闲置不用的软可及对象，对那些刚刚构建的或刚刚使用过的“新”软可反对象会被虚拟机尽可能保留</strong>（软引用有两个特殊的变量：clock——记录上一次GC的时间；timestamp——记录该变量上一次get的时间。这两个变量之差表示<strong>这个软引用对象距离上次GC时一直没被使用的时间</strong>，当这个差值大于阈值_max_interval（该阈值由上一次GC后剩余可用空间计算得出，空间越大，该阈值越大）时，则该对象标记为可废弃的，将在下一次GC时回收）。只要垃圾回收器没有回收它，该对象就可以被程序使用。软引用可用来实现内存敏感的高速缓存,比如网页缓存、图片缓存等。使用软引用能防止内存泄露，增强程序的健壮性。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MyObject aRef = <span class="keyword">new</span>  MyObject();  </span><br><span class="line">SoftReference aSoftRef=<span class="keyword">new</span> SoftReference(aRef); </span><br><span class="line">aRef = <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure></p>
-<p>将MyObject对象变成软引用对象，并结束对这个对象的强引用。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MyObject anotherRef=(MyObject)aSoftRef.get();</span><br></pre></td></tr></table></figure></p>
-<p>SoftReference保存一个Java对象的软引用后，在垃圾线程对Java对象回收前，可以通过SoftReference类提供的get方法获得该Java对象的强引用。但是一旦垃圾线程回收了该Java对象，get方法返回null。</p>
-<p>作为一个Java对象，SoftReference对象除了具有保存软引用的特殊性之外，也具有Java对象的一般性。所以当软可及对象被回收之后，这个SoftReference对象已经不再具有存在的价值，需要一个适当的清除机制，避免大量SoftReference对象带来的内存泄漏。在java.lang.ref包里还提供了ReferenceQueue。如果在创建SoftReference对象的时候，使用了一个ReferenceQueue对象作为参数提供给SoftReference的构造方法，如:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ReferenceQueue queue = <span class="keyword">new</span>  ReferenceQueue();  </span><br><span class="line">SoftReference  ref=<span class="keyword">new</span>  SoftReference(aMyObject, queue);</span><br></pre></td></tr></table></figure></p>
-<p>当这个SoftReference所软引用的aMyOhject被垃圾收集器回收的同时，ref所强引用的SoftReference对象被列入ReferenceQueue。也就是说，ReferenceQueue中保存的对象是Reference对象，而且是已经失去了它所软引用的对象的Reference对象。另外从ReferenceQueue这个名字也可以看出，它是一个队列，当我们调用它的poll()方法的时候，如果这个队列中不是空队列，那么将返回队列前面的那个Reference对象。</p>
-<p>在任何时候，我们都可以调用ReferenceQueue的poll()方法来检查是否有它所关心的非强可及对象被回收。如果队列为空，将返回一个null,否则该方法返回队列中前面的一个Reference对象。利用这个方法，我们可以检查哪个SoftReference所软引用的对象已经被回收。于是我们可以把这些失去所软引用的对象的SoftReference对象清除掉。</p>
-<h3 id="弱引用"><a href="#弱引用" class="headerlink" title="弱引用"></a>弱引用</h3><p>弱引用也是用来描述非必需对象的，当JVM进行垃圾回收时，无论内存是否充足，都会回收被弱引用关联的对象。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">    WeakReference&lt;People&gt;reference=<span class="keyword">new</span> WeakReference&lt;People&gt;(<span class="keyword">new</span> People(<span class="string">"zhouqian"</span>,<span class="number">20</span>));  </span><br><span class="line">    System.out.println(reference.get());  </span><br><span class="line">    System.gc(); </span><br><span class="line">    System.out.println(reference.get());  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>第二个输出结果是null，这说明只要JVM进行垃圾回收，被弱引用关联的对象必定会被回收掉。不过要注意的是，这里所说的被弱引用关联的对象是指只有弱引用与之关联，如果存在强引用同时与之关联，则进行垃圾回收时也不会回收该对象（软引用也是如此）。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">    People people=<span class="keyword">new</span> People(<span class="string">"zhouqian"</span>,<span class="number">20</span>);  </span><br><span class="line">    WeakReference&lt;People&gt;reference=<span class="keyword">new</span> WeakReference&lt;People&gt;(people);</span><br><span class="line">    System.out.println(reference.get());  </span><br><span class="line">    System.gc();  </span><br><span class="line">    System.out.println(reference.get());  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>两个输出结果相同。</p>
-<h3 id="虚引用"><a href="#虚引用" class="headerlink" title="虚引用"></a>虚引用</h3><p>虚引用和前面的软引用、弱引用不同，它并不影响对象的生命周期。如果一个对象与虚引用关联，则跟没有引用与之关联一样，在任何时候都可能被垃圾回收器回收。 <strong>为一个对象设置虚引用关联的唯一目的就是能在这个对象被收集器回收时收到一个系统通知。</strong> 虚引用必须和引用队列关联使用，当垃圾回收器准备回收一个对象时，如果发现它还有虚引用，就会把这个虚引用加入到与之关联的引用队列中。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">    ReferenceQueue&lt;String&gt; queue = <span class="keyword">new</span> ReferenceQueue&lt;String&gt;();  </span><br><span class="line">    PhantomReference&lt;String&gt; pr = <span class="keyword">new</span> PhantomReference&lt;String&gt;(<span class="keyword">new</span> String(<span class="string">"hello"</span>), queue);  </span><br><span class="line">    System.out.println(pr.get());  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-
+            <p>
+              java对象的引用包括强引用，软引用，弱引用，虚引用。Java中提供这四种引用类型主要有两个目的：一是可以让程序员通过代码的方式决定某些对象的生命周期；二是有利于JVM进行垃圾回收。
+强引用强引用是指
+              ...
+            </p>
+          <!--noindex-->
           
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java内存回收机制/"/>
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Li Jiangtao"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="zhulinyin"/>
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/01/28/Java内存回收机制/" class="post-title-link" itemprop="url">Java内存回收机制</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">post.posted</span>
-              
-
-              
-                
-              
-
-              <time title="post.createdsymbol.colon2019-01-28 16:24:01" itemprop="dateCreated datePublished" datetime="2019-01-28T16:24:01+08:00">2019-01-28</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">post.edited</span>
-                
-                <time title="post.modifiedsymbol.colon2019-03-16 10:45:32" itemprop="dateModified" datetime="2019-03-16T10:45:32+08:00">2019-03-16</time>
-              
-            
-          </span>
-
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/28/Java的四种引用方式/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
           
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="内存回收的意义"><a href="#内存回收的意义" class="headerlink" title="内存回收的意义"></a>内存回收的意义</h2><p>当我们使用C++这门开发语言时，每次new出来的变量都需要手动delete掉，否则会出现内存泄漏的问题。而Java语言中一个显著的特点就是引入了内存回收机制，它使得Java程序员在编写程序的时候不再需要考虑内存管理，Java中的对象不再有“作用域”的概念，只有对象的引用才有“作用域”。垃圾回收可以有效的防止内存泄露，有效的使用空闲的内存。</p>
-<h2 id="内存回收机制的算法"><a href="#内存回收机制的算法" class="headerlink" title="内存回收机制的算法"></a>内存回收机制的算法</h2><p>Java语言规范没有明确地说明JVM使用哪种垃圾回收算法，但是任何一种垃圾回收算法一般要做2件基本的事情：（1）发现无用对象；（2）回收被无用对象占用的内存空间，使该空间可被程序再次使用。</p>
-<h3 id="1-引用计数法-Reference-Counting-Collector"><a href="#1-引用计数法-Reference-Counting-Collector" class="headerlink" title="1.引用计数法(Reference Counting Collector)"></a>1.引用计数法(Reference Counting Collector)</h3><h4 id="算法分析"><a href="#算法分析" class="headerlink" title="算法分析"></a>算法分析</h4><p>引用计数是垃圾收集器中的早期策略。在这种方法中，堆中每个对象实例都有一个引用计数。当一个对象被创建时，且将该对象实例分配给一个变量，则该对象的引用计数设置为1。当任何其它变量被赋值为这个对象的引用时，计数加1（a = b,则b引用的对象实例的计数器+1），但当一个对象实例的某个引用超过了生命周期或者被设置为一个新值时，对象实例的引用计数器减1。任何引用计数器为0的对象实例可以被当作垃圾收集。当一个对象实例被垃圾收集时，它引用的任何对象实例的引用计数器减1。</p>
-<h4 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h4><p>引用计数收集器可以很快的执行，交织在程序运行中。对需要不被长时间打断的程序比较有利。</p>
-<h4 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h4><p>无法检测出循环引用。如父对象有一个对子对象的引用，子对象反过来引用父对象。这样他们的引用计数永远不可能为0。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        MyObject object1 = <span class="keyword">new</span> MyObject();</span><br><span class="line">        MyObject object2 = <span class="keyword">new</span> MyObject();</span><br><span class="line">          </span><br><span class="line">        object1.object = object2;</span><br><span class="line">        object2.object = object1;</span><br><span class="line">          </span><br><span class="line">        object1 = <span class="keyword">null</span>;</span><br><span class="line">        object2 = <span class="keyword">null</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>最后面两句将object1和object2赋值为null，也就是说object1和object2指向的对象已经不可能再被访问，但是由于它们互相引用对方，导致它们的引用计数器都不为0，那么垃圾收集器就永远不会回收它们。</p>
-<h3 id="2-tracing算法-Tracing-Collector-或-标记-清除算法-mark-and-sweep"><a href="#2-tracing算法-Tracing-Collector-或-标记-清除算法-mark-and-sweep" class="headerlink" title="2.tracing算法(Tracing Collector) 或 标记-清除算法(mark and sweep)"></a>2.tracing算法(Tracing Collector) 或 标记-清除算法(mark and sweep)</h3><h4 id="算法分析-1"><a href="#算法分析-1" class="headerlink" title="算法分析"></a>算法分析</h4><p>tracing算法是为了解决引用计数法的问题而提出，它使用了根集的概念。基于tracing算法的垃圾收集器从根集开始扫描，识别出哪些对象可达，哪些对象不可达，并用某种方式标记可达对象，例如对每个可达对象设置一个或多个位。</p>
-<p><img src="/2019/01/28/Java内存回收机制/1.jpg" alt=""></p>
-<h4 id="优点-1"><a href="#优点-1" class="headerlink" title="优点"></a>优点</h4><p>解决了循环引用的问题。</p>
-<h4 id="缺点-1"><a href="#缺点-1" class="headerlink" title="缺点"></a>缺点</h4><p>该算法不需要进行对象的移动，并且仅对不可达的对象进行处理，在可达对象比较多的情况下极为高效，但由于标记-清除算法直接回收不可达的对象，因此会造成内存碎片。</p>
-<h3 id="3-标记-整理算法-Mark-Compact"><a href="#3-标记-整理算法-Mark-Compact" class="headerlink" title="3.标记-整理算法(Mark-Compact)"></a>3.标记-整理算法(Mark-Compact)</h3><h4 id="算法分析-2"><a href="#算法分析-2" class="headerlink" title="算法分析"></a>算法分析</h4><p>标记-整理算法采用标记-清除算法一样的方式进行对象的标记，但在清除时不同，在回收不存活的对象占用的空间后，会将所有的存活对象往左端空闲空间移动，并更新对应的指针。标记-整理算法是在标记-清除算法的基础上，又进行了对象的移动，因此成本更高，但是却解决了内存碎片的问题。在基于Compacting算法的收集器的实现中，一般增加句柄和句柄表。</p>
-<p><img src="/2019/01/28/Java内存回收机制/2.jpg" alt=""></p>
-<h4 id="优点-2"><a href="#优点-2" class="headerlink" title="优点"></a>优点</h4><p>解决了内存碎片的问题。</p>
-<h4 id="缺点-2"><a href="#缺点-2" class="headerlink" title="缺点"></a>缺点</h4><p>由于需要对对象进行移动，因此成本较高。</p>
-<h3 id="4-copying算法"><a href="#4-copying算法" class="headerlink" title="4.copying算法"></a>4.copying算法</h3><h4 id="算法分析-3"><a href="#算法分析-3" class="headerlink" title="算法分析"></a>算法分析</h4><p>该算法的提出是为了克服句柄的开销和解决堆碎片的垃圾回收。它开始时把堆分成一个对象面和一个空闲面，程序从对象面为对象分配空间，当对象满了，基于copying算法的垃圾收集就从根集中扫描活动对象，并将每个活动对象复制到空闲面(使得活动对象所占的内存之间没有空闲洞)，这样空闲面变成了对象面，原来的对象面变成了空闲面，程序会在新的对象面中分配内存。一种典型的基于coping算法的垃圾回收是stop-and-copy算法，它将堆分成对象面和空闲区域面，在对象面与空闲区域面的切换过程中，程序暂停执行。</p>
-<p><img src="/2019/01/28/Java内存回收机制/3.jpg" alt=""></p>
-<h4 id="优点-3"><a href="#优点-3" class="headerlink" title="优点"></a>优点</h4><p>实现简单，运行高效且不容易产生内存碎片</p>
-<h4 id="缺点-3"><a href="#缺点-3" class="headerlink" title="缺点"></a>缺点</h4><p>对内存空间的使用付出了巨大的代价，因为可用的内存空间减少了一半。Copying算法的效率跟存活对象的数目多少有很大的关系，如果存活对象很多，那么Copying算法的效率将会大大降低。</p>
-<h3 id="5-Generational-Collection（分代收集）算法"><a href="#5-Generational-Collection（分代收集）算法" class="headerlink" title="5.Generational Collection（分代收集）算法"></a>5.Generational Collection（分代收集）算法</h3><h4 id="算法分析-4"><a href="#算法分析-4" class="headerlink" title="算法分析"></a>算法分析</h4><p>分代的垃圾回收策略，是基于这样一个事实：不同的对象的生命周期是不一样的。因此不同生命周期的对象可以采取不同的回收算法，以便提高回收效率。</p>
-<p><img src="/2019/01/28/Java内存回收机制/4.jpg" alt=""></p>
-<ul>
-<li>年轻代（Young Generation）<br>年轻代就是为了快速清理掉那些生存周期短的对象而设立的，年轻代分为三个模块，一个eden区，两个survivor区（survivor0和survivor1），它们内存按8：1：1分配，一个新的对象建立首先在eden区，年轻代的回收叫做minor GC，在回收时将eden区中存活的对象复制到survivor0区中，然后清空eden区。当survivor0区的内存被存满时，eden区和survivor0区将全部存活的对象存入survivor1区。然后将survivor0区和eden区清空，将survivor1区与survivor0区交换，以此一直循环，直到回收时survivor1区存不下survivor0+eden区的存活对象时就将存活对象放入老年代。</li>
-<li>老年代（Old Generation）<br>当对象在年轻代经历过次次历练后，他终于存活到了老年区，所以老年代中的对象大多都是一些生命周期比较长的对象，老年代也比年轻代分到到的内存要大，默认是1：2。当老年代内存也存满时就会触发一次full GC或者叫major GC，也就是对年轻代老年代都进行回收。</li>
-<li>持久代（Permanent Generation）<br>用于存放静态文件，如Java类、方法等。持久代对垃圾回收没有显著影响，但是有些应用可能动态生成或者调用一些class，例如Hibernate 等，在这种时候需要设置一个比较大的持久代空间来存放这些运行过程中新增的类。</li>
-</ul>
-<h3 id="GC-root"><a href="#GC-root" class="headerlink" title="GC root"></a>GC root</h3><p>GC root是一组根引用，由于Java垃圾回收主要是针对堆内存，因此这些引用则来自于JVM运行时数据区的其它几部分：虚拟机栈，本地方法区，方法区。主要包括：</p>
-<ol>
-<li>虚拟机栈中的局部变量表。</li>
-<li>类的静态属性引用。</li>
-<li>常量对象引用。</li>
-<li>本地方法区中的对象引用。</li>
-</ol>
-
-          
+          <!--/noindex-->
         
       
     </div>
@@ -1296,26 +1039,188 @@
       
         
           
-            <h3 id="native"><a href="#native" class="headerlink" title="native"></a>native</h3><blockquote>
-<p>native 关键字可以应用于方法，以指示该方法是用 Java 以外的语言实现的。</p>
-</blockquote>
-<h3 id="strictfp"><a href="#strictfp" class="headerlink" title="strictfp"></a>strictfp</h3><blockquote>
-<p>strictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令人满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点规范IEEE-754来执行。因此如果想让浮点运算更加精确，而且不会因为不同的硬件平台所执行的结果不一致的话，那就请用关键字strictfp。<br>可以将一个类、接口以及方法声明为strictfp，但是不允许对接口中的方法以及构造函数声明strictfp关键字</p>
-</blockquote>
-<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><blockquote>
-<p>synchronized 关键字可以应用于方法或语句块，使得该代码块一次只能被一个线程执行。<br>如果应用于静态方法，那么，当该方法一次由一个线程执行时，整个类将被锁定。<br>如果应用于实例方法，那么，当该方法一次由一个线程访问时，该实例将被锁定。<br>如果应用于对象或数组，当关联的代码块一次由一个线程执行时，对象或数组将被锁定。</p>
-</blockquote>
-<h3 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h3><blockquote>
-<p>transient 关键字可以应用于类的成员变量，使得当该类的实例被序列化时，该变量不被序列化。</p>
-</blockquote>
-<h3 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h3><blockquote>
-<p>volatile 关键字用于表示可以被多个线程异步修改的成员变量。<br>volatile是一种轻量级的同步机制，它主要有两个特性：一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化。</p>
-</blockquote>
-<h3 id="throw-和-throws"><a href="#throw-和-throws" class="headerlink" title="throw 和 throws"></a>throw 和 throws</h3><blockquote>
-<p>throw语句用在方法体内，表示抛出异常，由方法体内的语句处理。<br>throws主要是声明这个方法可能会抛出这种类型的异常，使它的调用者知道要捕获这个异常。</p>
-</blockquote>
+            <p>
+              native
+native 关键字可以应用于方法，以指示该方法是用 Java 以外的语言实现的。
+
+strictfp
+strictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/28/Java关键字及其作用/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java内存回收机制/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/01/28/Java内存回收机制/" class="post-title-link" itemprop="url">Java内存回收机制</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">post.posted</span>
+              
+
+              
+                
+              
+
+              <time title="post.createdsymbol.colon2019-01-28 16:24:01" itemprop="dateCreated datePublished" datetime="2019-01-28T16:24:01+08:00">2019-01-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">post.edited</span>
+                
+                <time title="post.modifiedsymbol.colon2019-03-16 10:45:32" itemprop="dateModified" datetime="2019-03-16T10:45:32+08:00">2019-03-16</time>
+              
+            
+          </span>
 
           
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>
+              内存回收的意义当我们使用C++这门开发语言时，每次new出来的变量都需要手动delete掉，否则会出现内存泄漏的问题。而Java语言中一个显著的特点就是引入了内存回收机制，它使得Java程序员在编写程
+              ...
+            </p>
+          <!--noindex-->
+          
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/28/Java内存回收机制/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -1468,62 +1373,20 @@
       
         
           
-            <h3 id="HashMap"><a href="#HashMap" class="headerlink" title="HashMap"></a>HashMap</h3><h4 id="重要方法"><a href="#重要方法" class="headerlink" title="重要方法"></a>重要方法</h4><ul>
-<li><p><code>static final int hash(Object key)</code>：获取key的hash值，当key为空时，hash值为0；否则hash值由两部分组成：前16位为key的hashcode的前16位，后16位为key的hashcode的前16位和后16位的异或。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">hash</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> h;</span><br><span class="line">    <span class="keyword">return</span> (key == <span class="keyword">null</span>) ? <span class="number">0</span> : (h = key.hashCode()) ^ (h &gt;&gt;&gt; <span class="number">16</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>static final int tableSizeFor(int cap)</code>：获取最小大于指定容量cap的2次幂，如cap为6时返回8。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> <span class="title">tableSizeFor</span><span class="params">(<span class="keyword">int</span> cap)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> n = -<span class="number">1</span> &gt;&gt;&gt; Integer.numberOfLeadingZeros(cap - <span class="number">1</span>);</span><br><span class="line">    <span class="keyword">return</span> (n &lt; <span class="number">0</span>) ? <span class="number">1</span> : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>public V get(Object key)</code>：获取指定key值的value。</p>
-</li>
-<li><code>final Node&lt;K,V&gt; getNode(int hash, Object key)</code>：获取指定hash值和key值的节点。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt; e;</span><br><span class="line">    <span class="keyword">return</span> (e = getNode(hash(key), key)) == <span class="keyword">null</span> ? <span class="keyword">null</span> : e.value;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">final</span> Node&lt;K,V&gt; <span class="title">getNode</span><span class="params">(<span class="keyword">int</span> hash, Object key)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; first, e; <span class="keyword">int</span> n; K k;</span><br><span class="line">    <span class="keyword">if</span> ((tab = table) != <span class="keyword">null</span> &amp;&amp; (n = tab.length) &gt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">        (first = tab[(n - <span class="number">1</span>) &amp; hash]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (first.hash == hash &amp;&amp; <span class="comment">// always check first node</span></span><br><span class="line">            ((k = first.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            <span class="keyword">return</span> first;</span><br><span class="line">        <span class="keyword">if</span> ((e = first.next) != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (first <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                <span class="keyword">return</span> ((TreeNode&lt;K,V&gt;)first).getTreeNode(hash, key);</span><br><span class="line">            <span class="keyword">do</span> &#123;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">return</span> e;</span><br><span class="line">            &#125; <span class="keyword">while</span> ((e = e.next) != <span class="keyword">null</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>通过hash值的低位（与容量进行与操作）得到节点在数组中对应的索引，得到first节点，如果是普通的链表节点，则first为链表头，通过链表头向后遍历搜索对应的key，得到相应的节点。</p>
-<ul>
-<li><code>public V put(K key, V value)</code>：将键值对放入hash表中。</li>
-<li><code>final V putVal(int hash, K key, V value, boolean onlyIfAbsent, boolean evict)</code>：将键值对放入hash表中，当onlyIfAbsent为true且key已存在时，不会改变已存在的value的值，且返回之前的value，否则返回null。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> putVal(hash(key), key, value, <span class="keyword">false</span>, <span class="keyword">true</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">final</span> V <span class="title">putVal</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">boolean</span> onlyIfAbsent,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="keyword">boolean</span> evict)</span> </span>&#123;</span><br><span class="line">    Node&lt;K,V&gt;[] tab; Node&lt;K,V&gt; p; <span class="keyword">int</span> n, i;</span><br><span class="line">    <span class="keyword">if</span> ((tab = table) == <span class="keyword">null</span> || (n = tab.length) == <span class="number">0</span>)</span><br><span class="line">        n = (tab = resize()).length;</span><br><span class="line">    <span class="keyword">if</span> ((p = tab[i = (n - <span class="number">1</span>) &amp; hash]) == <span class="keyword">null</span>)</span><br><span class="line">        tab[i] = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        Node&lt;K,V&gt; e; K k;</span><br><span class="line">        <span class="keyword">if</span> (p.hash == hash &amp;&amp;</span><br><span class="line">            ((k = p.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">            e = p;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (p <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">            e = ((TreeNode&lt;K,V&gt;)p).putTreeVal(<span class="keyword">this</span>, tab, hash, key, value);</span><br><span class="line">        <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">int</span> binCount = <span class="number">0</span>; ; ++binCount) &#123;</span><br><span class="line">                <span class="keyword">if</span> ((e = p.next) == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    p.next = newNode(hash, key, value, <span class="keyword">null</span>);</span><br><span class="line">                    <span class="keyword">if</span> (binCount &gt;= TREEIFY_THRESHOLD - <span class="number">1</span>) <span class="comment">// -1 for 1st</span></span><br><span class="line">                        treeifyBin(tab, hash);</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span> (e.hash == hash &amp;&amp;</span><br><span class="line">                    ((k = e.key) == key || (key != <span class="keyword">null</span> &amp;&amp; key.equals(k))))</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                p = e;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (e != <span class="keyword">null</span>) &#123; <span class="comment">// existing mapping for key</span></span><br><span class="line">            V oldValue = e.value;</span><br><span class="line">            <span class="keyword">if</span> (!onlyIfAbsent || oldValue == <span class="keyword">null</span>)</span><br><span class="line">                e.value = value;</span><br><span class="line">            afterNodeAccess(e);</span><br><span class="line">            <span class="keyword">return</span> oldValue;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ++modCount;</span><br><span class="line">    <span class="keyword">if</span> (++size &gt; threshold)</span><br><span class="line">        resize();</span><br><span class="line">    afterNodeInsertion(evict);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<p>首先通过key的hash值得到对应的索引，若得到的节点为空，则直接插入键值对；若得到的节点不为空且不是树节点，则该节点为链表头，依次遍历该链表，若找到相同的key，则替换对应的value值，因为onlyIfAbsent默认为false；若到达链表的末尾，则将新的键值对插入到链表末尾，若此时链表的长度大于等于8（TREEIFY_THRESHOLD），则将链表转化为红黑树，因为链表太长会限制查找速度，这样做是为了提高查询性能。若hash表中元素的个数超过阈值，则进行扩容。</p>
-<ul>
-<li><code>final Node&lt;K,V&gt;[] resize()</code>：对hash表进行扩容。将数组长度扩大到原来的两倍，对原来数组中的元素进行重分配，若(e.hash &amp; oldCap) == 0则分配在低链上，否则分配在高链上。例如原来的数组长度为8，则下标为0-7，如果有两个元素的key的hash值的低四位分别为0000和1000，那么在旧表中会被分配到下标为0的链表中，而在新表中会被分别分配到下标为0和下标为8的链表中。<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> Node&lt;K,V&gt;[] resize() &#123;</span><br><span class="line">    Node&lt;K,V&gt;[] oldTab = table;</span><br><span class="line">    <span class="keyword">int</span> oldCap = (oldTab == <span class="keyword">null</span>) ? <span class="number">0</span> : oldTab.length;</span><br><span class="line">    <span class="keyword">int</span> oldThr = threshold;</span><br><span class="line">    <span class="keyword">int</span> newCap, newThr = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (oldCap &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (oldCap &gt;= MAXIMUM_CAPACITY) &#123;</span><br><span class="line">            threshold = Integer.MAX_VALUE;</span><br><span class="line">            <span class="keyword">return</span> oldTab;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> ((newCap = oldCap &lt;&lt; <span class="number">1</span>) &lt; MAXIMUM_CAPACITY &amp;&amp;</span><br><span class="line">                    oldCap &gt;= DEFAULT_INITIAL_CAPACITY)</span><br><span class="line">            newThr = oldThr &lt;&lt; <span class="number">1</span>; <span class="comment">// double threshold</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (oldThr &gt; <span class="number">0</span>) <span class="comment">// initial capacity was placed in threshold</span></span><br><span class="line">        newCap = oldThr;</span><br><span class="line">    <span class="keyword">else</span> &#123;               <span class="comment">// zero initial threshold signifies using defaults</span></span><br><span class="line">        newCap = DEFAULT_INITIAL_CAPACITY;</span><br><span class="line">        newThr = (<span class="keyword">int</span>)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (newThr == <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">float</span> ft = (<span class="keyword">float</span>)newCap * loadFactor;</span><br><span class="line">        newThr = (newCap &lt; MAXIMUM_CAPACITY &amp;&amp; ft &lt; (<span class="keyword">float</span>)MAXIMUM_CAPACITY ?</span><br><span class="line">                    (<span class="keyword">int</span>)ft : Integer.MAX_VALUE);</span><br><span class="line">    &#125;</span><br><span class="line">    threshold = newThr;</span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(&#123;<span class="string">"rawtypes"</span>,<span class="string">"unchecked"</span>&#125;)</span><br><span class="line">    Node&lt;K,V&gt;[] newTab = (Node&lt;K,V&gt;[])<span class="keyword">new</span> Node[newCap];</span><br><span class="line">    table = newTab;</span><br><span class="line">    <span class="keyword">if</span> (oldTab != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; oldCap; ++j) &#123;</span><br><span class="line">            Node&lt;K,V&gt; e;</span><br><span class="line">            <span class="keyword">if</span> ((e = oldTab[j]) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                oldTab[j] = <span class="keyword">null</span>;</span><br><span class="line">                <span class="keyword">if</span> (e.next == <span class="keyword">null</span>)</span><br><span class="line">                    newTab[e.hash &amp; (newCap - <span class="number">1</span>)] = e;</span><br><span class="line">                <span class="keyword">else</span> <span class="keyword">if</span> (e <span class="keyword">instanceof</span> TreeNode)</span><br><span class="line">                    ((TreeNode&lt;K,V&gt;)e).split(<span class="keyword">this</span>, newTab, j, oldCap);</span><br><span class="line">                <span class="keyword">else</span> &#123; <span class="comment">// preserve order</span></span><br><span class="line">                    Node&lt;K,V&gt; loHead = <span class="keyword">null</span>, loTail = <span class="keyword">null</span>;</span><br><span class="line">                    Node&lt;K,V&gt; hiHead = <span class="keyword">null</span>, hiTail = <span class="keyword">null</span>;</span><br><span class="line">                    Node&lt;K,V&gt; next;</span><br><span class="line">                    <span class="keyword">do</span> &#123;</span><br><span class="line">                        next = e.next;</span><br><span class="line">                        <span class="keyword">if</span> ((e.hash &amp; oldCap) == <span class="number">0</span>) &#123;</span><br><span class="line">                            <span class="keyword">if</span> (loTail == <span class="keyword">null</span>)</span><br><span class="line">                                loHead = e;</span><br><span class="line">                            <span class="keyword">else</span></span><br><span class="line">                                loTail.next = e;</span><br><span class="line">                            loTail = e;</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">else</span> &#123;</span><br><span class="line">                            <span class="keyword">if</span> (hiTail == <span class="keyword">null</span>)</span><br><span class="line">                                hiHead = e;</span><br><span class="line">                            <span class="keyword">else</span></span><br><span class="line">                                hiTail.next = e;</span><br><span class="line">                            hiTail = e;</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125; <span class="keyword">while</span> ((e = next) != <span class="keyword">null</span>);</span><br><span class="line">                    <span class="keyword">if</span> (loTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        loTail.next = <span class="keyword">null</span>;</span><br><span class="line">                        newTab[j] = loHead;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">if</span> (hiTail != <span class="keyword">null</span>) &#123;</span><br><span class="line">                        hiTail.next = <span class="keyword">null</span>;</span><br><span class="line">                        newTab[j + oldCap] = hiHead;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> newTab;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h4><ul>
-<li>底层数组+链表实现，可以存储null键和null值，线程不安全</li>
-<li>默认初始size为16，扩容时扩充为原来的两倍，size一定为2的n次幂</li>
-<li>扩容针对整个Map，每次扩容时，原来数组中的元素依次重新计算存放位置，并重新插入</li>
-<li>当<strong>插入元素后</strong>Map中元素总数超过Entry数组的0.75（默认加载因子），触发扩容操作，为了减少链表长度，元素分配更均匀，增加查询效率</li>
-<li>当插入元素后，当前链表长度大于8时会将当前链表转换成红黑树，提高查询效率</li>
-</ul>
-<h3 id="Hashtable"><a href="#Hashtable" class="headerlink" title="Hashtable"></a>Hashtable</h3><h4 id="重要方法-1"><a href="#重要方法-1" class="headerlink" title="重要方法"></a>重要方法</h4><ul>
-<li><p><code>public synchronized V get(Object key)</code>：获取指定key值的value。通过key的hash值获得其在数组中的索引，遍历链表，若找到相同的key，则返回对应的value；否则返回null。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">get</span><span class="params">(Object key)</span> </span>&#123;</span><br><span class="line">    Entry&lt;?,?&gt; tab[] = table;</span><br><span class="line">    <span class="keyword">int</span> hash = key.hashCode();</span><br><span class="line">    <span class="keyword">int</span> index = (hash &amp; <span class="number">0x7FFFFFFF</span>) % tab.length;</span><br><span class="line">    <span class="keyword">for</span> (Entry&lt;?,?&gt; e = tab[index] ; e != <span class="keyword">null</span> ; e = e.next) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((e.hash == hash) &amp;&amp; e.key.equals(key)) &#123;</span><br><span class="line">            <span class="keyword">return</span> (V)e.value;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>protected void rehash()</code>：重哈希，相当于HashMap的resize扩容操作。将数组长度扩大到原来的两倍加一，并把原来表中的元素重新计算索引值放到新表中。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">rehash</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> oldCapacity = table.length;</span><br><span class="line">    Entry&lt;?,?&gt;[] oldMap = table;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// overflow-conscious code</span></span><br><span class="line">    <span class="keyword">int</span> newCapacity = (oldCapacity &lt;&lt; <span class="number">1</span>) + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (newCapacity - MAX_ARRAY_SIZE &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (oldCapacity == MAX_ARRAY_SIZE)</span><br><span class="line">            <span class="comment">// Keep running with MAX_ARRAY_SIZE buckets</span></span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        newCapacity = MAX_ARRAY_SIZE;</span><br><span class="line">    &#125;</span><br><span class="line">    Entry&lt;?,?&gt;[] newMap = <span class="keyword">new</span> Entry&lt;?,?&gt;[newCapacity];</span><br><span class="line"></span><br><span class="line">    modCount++;</span><br><span class="line">    threshold = (<span class="keyword">int</span>)Math.min(newCapacity * loadFactor, MAX_ARRAY_SIZE + <span class="number">1</span>);</span><br><span class="line">    table = newMap;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = oldCapacity ; i-- &gt; <span class="number">0</span> ;) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Entry&lt;K,V&gt; old = (Entry&lt;K,V&gt;)oldMap[i] ; old != <span class="keyword">null</span> ; ) &#123;</span><br><span class="line">            Entry&lt;K,V&gt; e = old;</span><br><span class="line">            old = old.next;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">int</span> index = (e.hash &amp; <span class="number">0x7FFFFFFF</span>) % newCapacity;</span><br><span class="line">            e.next = (Entry&lt;K,V&gt;)newMap[index];</span><br><span class="line">            newMap[index] = e;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p><code>public synchronized V put(K key, V value)</code>：将键值对放入表中。首先判断值是否为空，为空则抛出异常。计算key的hash值（若key为空也会抛出异常，因为没有对key为空做处理）得到其在数组中的索引，遍历该索引指向的链表，若找到相同的key值，则更新value值并返回原来的value值；若没有找到则将键值对插入到链表头。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addEntry</span><span class="params">(<span class="keyword">int</span> hash, K key, V value, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">    Entry&lt;?,?&gt; tab[] = table;</span><br><span class="line">    <span class="keyword">if</span> (count &gt;= threshold) &#123;</span><br><span class="line">        <span class="comment">// Rehash the table if the threshold is exceeded</span></span><br><span class="line">        rehash();</span><br><span class="line"></span><br><span class="line">        tab = table;</span><br><span class="line">        hash = key.hashCode();</span><br><span class="line">        index = (hash &amp; <span class="number">0x7FFFFFFF</span>) % tab.length;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Creates the new entry.</span></span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    Entry&lt;K,V&gt; e = (Entry&lt;K,V&gt;) tab[index];</span><br><span class="line">    tab[index] = <span class="keyword">new</span> Entry&lt;&gt;(hash, key, value, e);</span><br><span class="line">    count++;</span><br><span class="line">    modCount++;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> V <span class="title">put</span><span class="params">(K key, V value)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Make sure the value is not null</span></span><br><span class="line">    <span class="keyword">if</span> (value == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Makes sure the key is not already in the hashtable.</span></span><br><span class="line">    Entry&lt;?,?&gt; tab[] = table;</span><br><span class="line">    <span class="keyword">int</span> hash = key.hashCode();</span><br><span class="line">    <span class="keyword">int</span> index = (hash &amp; <span class="number">0x7FFFFFFF</span>) % tab.length;</span><br><span class="line">    <span class="meta">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    Entry&lt;K,V&gt; entry = (Entry&lt;K,V&gt;)tab[index];</span><br><span class="line">    <span class="keyword">for</span>(; entry != <span class="keyword">null</span> ; entry = entry.next) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((entry.hash == hash) &amp;&amp; entry.key.equals(key)) &#123;</span><br><span class="line">            V old = entry.value;</span><br><span class="line">            entry.value = value;</span><br><span class="line">            <span class="keyword">return</span> old;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    addEntry(hash, key, value, index);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-</li>
-</ul>
-<h4 id="总结-1"><a href="#总结-1" class="headerlink" title="总结"></a>总结</h4><ul>
-<li>与HashMap一样，底层由数组+链表实现，但是key和value都不能为null，由于公共方法都用了synchronized关键字进行修饰，因此是线程安全的</li>
-<li>初始默认容量为11，加载因子为0.75，每次扩容容量变为原来的两倍加一，容量不一定是2的指数次方，每次<strong>插入元素前</strong>判断元素个数是否大于阈值，如果是则需要先进行扩容，再插入元素</li>
-<li>在链表头插入元素</li>
-<li>计算数组下标时是使用取模的运算，相比于HashMap的位运算效率会低一些</li>
-<li>HashTable容器使用synchronized来保证线程安全，但在线程竞争激烈的情况下HashTable的效率非常低下。因为当一个线程访问HashTable的同步方法时，其他线程访问HashTable的同步方法时，可能会进入阻塞或轮询状态。如线程1使用put进行添加元素，线程2不但不能使用put方法添加元素，并且也不能使用get方法来获取元素，所以竞争越激烈效率越低</li>
-</ul>
-<h3 id="ConcurrentHashMap"><a href="#ConcurrentHashMap" class="headerlink" title="ConcurrentHashMap"></a>ConcurrentHashMap</h3><h4 id="总结-2"><a href="#总结-2" class="headerlink" title="总结"></a>总结</h4><p><img src="/2019/01/27/HashMap、Hashtable、ConcurrentHashMap的原理（jdk11）/1.png" alt=""><br>HashTable容器在竞争激烈的并发环境下表现出效率低下的原因，是因为所有访问HashTable的线程都必须竞争同一把锁，那假如容器里有多把锁，每一把锁用于锁容器其中一部分数据，那么当多线程访问容器里不同数据段的数据时，线程间就不会存在锁竞争，从而可以有效的提高并发访问效率，这就是ConcurrentHashMap所使用的锁分段技术，首先将数据分成一段一段的存储，然后给每一段数据配一把锁，当一个线程占用锁访问其中一个段数据的时候，其他段的数据也能被其他线程访问。有些方法需要跨段，比如size()和containsValue()，它们可能需要锁定整个表而而不仅仅是某个段，这需要按顺序锁定所有段，操作完毕后，又按顺序释放所有段的锁。这里“按顺序”是很重要的，否则极有可能出现死锁，在ConcurrentHashMap内部，段数组是final的，并且其成员变量实际上也是final的，但是，仅仅是将数组声明为final的并不保证数组成员也是final的，这需要实现上的保证。这可以确保不会出现死锁，因为获得锁的顺序是固定的。</p>
-<ul>
-<li>ConcurrentHashMap中的key和value不能为空</li>
-<li>ConcurrentHashMap由多个Segment组成，每个Segment相当于一个Hashtable</li>
-<li>ConcurrentHashMap定位一个元素的过程需要进行两次Hash操作，第一次Hash定位到Segment，第二次Hash定位到元素所在的链表的头部，因此，这一种结构的带来的副作用是Hash的过程要比普通的HashMap要长，但是带来的好处是写操作的时候可以只对元素所在的Segment进行加锁即可，不会影响到其他的Segment，这样，在最理想的情况下，ConcurrentHashMap可以最高同时支持Segment数量大小的写操作（刚好这些写操作都非常平均地分布在所有的Segment上），所以，通过这一种结构，ConcurrentHashMap的并发能力可以大大的提高</li>
-</ul>
-
+            <p>
+              HashMap重要方法
+static final int hash(Object key)：获取key的hash值，当key为空时，hash值为0；否则hash值由两部分组成：前16位为key的has
+              ...
+            </p>
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/27/HashMap、Hashtable、ConcurrentHashMap的原理（jdk11）/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -1664,114 +1527,20 @@
       
         
           
-            <h1 id="Distinct-Subsequences"><a href="#Distinct-Subsequences" class="headerlink" title="Distinct Subsequences"></a>Distinct Subsequences</h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
-<p>Given a string S and a string T, count the number of distinct subsequences of S which equals T.<br>A subsequence of a string is a new string which is formed from the original string by deleting some (can be none) of the characters without disturbing the relative positions of the remaining characters. (ie, “ACE” is a subsequence of “ABCDE” while “AEC” is not).</p>
-</blockquote>
-<p><strong>Example 1:</strong></p>
-<blockquote>
-<p><strong>Input:</strong> S = “rabbbit”, T = “rabbit”<br><strong>Output:</strong> 3  </p>
-</blockquote>
-<p><strong>Example 2:</strong></p>
-<blockquote>
-<p><strong>Input:</strong> S = “babgbag”, T = “bag”<br><strong>Output:</strong> 5  </p>
-</blockquote>
-<h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><p>本题给出了字符串S和字符串T，要求找出S有多少个子字符串与T相同。<br>使用二维数组count，count[i][j]表示S的前j个字符组成的字符串有多少个子字符串与T的前i个字符组成的字符串相同，假设n为S字符串的长度，m为T字符串的长度，那么count[m][n]即为所求。具体步骤如下：</p>
-<ul>
-<li>首先初始化数组的第一行count[0][j]=1，即当T为空串时，S有一个子字符串（空串）与T相同。</li>
-<li>除第一行外，初始化数组的第一列count[i][0]=0，即当S为空串时，没有子字符串与T相同。</li>
-<li>依次计算数组的每一行，当比较到S[j-1] == T[i-1]时，count[i][j] = count[i][j-1] + count[i-1][j-1]，否则count[i][j] = count[i][j-1]。这是因为当S的当前字符与T的当前字符不相同时，我们并没有得到新的字符因此数量与前面相等；当S的当前字符与T的当前字符相同时，可从下列表格得出规律。</li>
-</ul>
-<p>以样例1为例：</p>
-<div class="table-container">
-<table>
-<thead>
-<tr>
-<th>Ø</th>
-<th>r</th>
-<th>a</th>
-<th>b</th>
-<th>b</th>
-<th>b</th>
-<th>i</th>
-<th>t</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Ø</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-</tr>
-<tr>
-<td>r</td>
-<td>0</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-</tr>
-<tr>
-<td>a</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-<td>1</td>
-</tr>
-<tr>
-<td>b</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>2</td>
-<td>3</td>
-<td>3</td>
-</tr>
-<tr>
-<td>b</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>1</td>
-<td>3</td>
-<td>3</td>
-</tr>
-<tr>
-<td>i</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3</td>
-<td>3</td>
-</tr>
-<tr>
-<td>t</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>0</td>
-<td>3</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">numDistinct</span><span class="params">(<span class="built_in">string</span> s, <span class="built_in">string</span> t)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">int</span> n = s.length();</span><br><span class="line">        <span class="keyword">int</span> m = t.length();</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; count(m + <span class="number">1</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(n + <span class="number">1</span>, <span class="number">0</span>));</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n + <span class="number">1</span>; i++) &#123;</span><br><span class="line">            count[<span class="number">0</span>][i] = <span class="number">1</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; m + <span class="number">1</span>; i++) &#123;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt; n + <span class="number">1</span>; j++) &#123;</span><br><span class="line">                <span class="keyword">if</span>(s[j - <span class="number">1</span>] == t[i - <span class="number">1</span>]) &#123;</span><br><span class="line">                    count[i][j] = count[i][j<span class="number">-1</span>] + count[i<span class="number">-1</span>][j<span class="number">-1</span>];</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">else</span> &#123;</span><br><span class="line">                    count[i][j] = count[i][j<span class="number">-1</span>];</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> count[m][n];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+            <p>
+              Distinct Subsequences题目描述
+Given a string S and a string T, count the number of distinct subsequences
+              ...
+            </p>
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/27/算法设计与分析-Week15/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -1924,145 +1693,21 @@
       
         
           
-            <h2 id="算法分类"><a href="#算法分类" class="headerlink" title="算法分类"></a>算法分类</h2><p>常见的排序算法可分为两大类：</p>
-<blockquote>
-<p><strong>非线性时间比较类排序：</strong>通过比较来决定元素间的相对次序，由于其时间复杂度不能突破O(nlogn)，因此称为非线性时间比较类排序。<br><strong>线性时间非比较类排序：</strong>不通过比较来决定元素间的相对次序，它可以突破基于比较排序的时间下界，以线性时间运行，因此称为线性时间非比较类排序。</p>
-</blockquote>
-<p><img src="/2019/01/27/排序算法总结/排序算法.jpg" alt="图1"></p>
-<h2 id="算法复杂度"><a href="#算法复杂度" class="headerlink" title="算法复杂度"></a>算法复杂度</h2><div class="table-container">
-<table>
-<thead>
-<tr>
-<th>排序算法</th>
-<th>时间复杂度（平均）</th>
-<th>时间复杂度（最坏）</th>
-<th>时间复杂度（最好）</th>
-<th>空间复杂度</th>
-<th>稳定性</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>插入排序</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n)\)</td>
-<td>\(O(1)\)</td>
-<td>稳定</td>
-</tr>
-<tr>
-<td>希尔排序</td>
-<td>\(O(n^{1.3})\)</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n)\)</td>
-<td>\(O(1)\)</td>
-<td>不稳定</td>
-</tr>
-<tr>
-<td>选择排序</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(1)\)</td>
-<td>不稳定</td>
-</tr>
-<tr>
-<td>堆排序</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(1)\)</td>
-<td>不稳定</td>
-</tr>
-<tr>
-<td>冒泡排序</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n)\)</td>
-<td>\(O(1)\)</td>
-<td>稳定</td>
-</tr>
-<tr>
-<td>快速排序</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(nlogn)\)</td>
-<td>不稳定</td>
-</tr>
-<tr>
-<td>归并排序</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(nlogn)\)</td>
-<td>\(O(n)\)</td>
-<td>稳定</td>
-</tr>
-<tr>
-<td>计数排序</td>
-<td>\(O(n+k)\)</td>
-<td>\(O(n+k)\)</td>
-<td>\(O(n+k)\)</td>
-<td>\(O(n+k)\)</td>
-<td>稳定</td>
-</tr>
-<tr>
-<td>桶排序</td>
-<td>\(O(n+k)\)</td>
-<td>\(O(n^2)\)</td>
-<td>\(O(n)\)</td>
-<td>\(O(n+k)\)</td>
-<td>稳定</td>
-</tr>
-<tr>
-<td>基数排序</td>
-<td>\(O(nlog(r)m)\)</td>
-<td>\(O(nlog(r)m)\)</td>
-<td>\(O(nlog(r)m)\)</td>
-<td>\(O(n+m)\)</td>
-<td>稳定</td>
-</tr>
-</tbody>
-</table>
-</div>
-<blockquote>
-<p><strong>稳定：</strong>如果a原本在b前面，而a=b，排序之后a仍然在b的前面。<br><strong>不稳定：</strong>如果a原本在b的前面，而a=b，排序之后a可能会出现在b的后面。<br><strong>时间复杂度：</strong>对排序数据的总的操作次数。反映当n变化时，操作次数呈现什么规律。<br><strong>空间复杂度：</strong>是指算法在计算机内执行时所需存储空间的度量，它也是数据规模n的函数。 </p>
-</blockquote>
-<h2 id="七个常用排序算法"><a href="#七个常用排序算法" class="headerlink" title="七个常用排序算法"></a>七个常用排序算法</h2><h3 id="冒泡排序"><a href="#冒泡排序" class="headerlink" title="冒泡排序"></a>冒泡排序</h3><blockquote>
-<p>冒泡排序重复地走访过要排序的元素列，依次比较两个相邻的元素，如果他们的顺序（如从大到小、首字母从A到Z）错误就把他们交换过来。走访元素的工作是重复地进行直到没有相邻元素需要交换，也就是说该元素已经排序完成。<br>这个算法的名字由来是因为越大的元素会经由交换慢慢“浮”到数列的顶端（升序或降序排列），就如同碳酸饮料中二氧化碳的气泡最终会上浮到顶端一样，故名“冒泡排序”。</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> &amp;a, <span class="keyword">int</span> &amp;b)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> temp = a;</span><br><span class="line">	a = b;</span><br><span class="line">	b = temp;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	<span class="keyword">bool</span> flag = <span class="literal">false</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n - <span class="number">1</span>; i++) &#123;</span><br><span class="line">		flag = <span class="literal">true</span>;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; n - <span class="number">1</span> - i; j++) &#123;</span><br><span class="line">			<span class="keyword">if</span> (arr[j] &gt; arr[j + <span class="number">1</span>]) &#123;</span><br><span class="line">				swap(arr[j], arr[j + <span class="number">1</span>]);</span><br><span class="line">				flag = <span class="literal">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (flag) <span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="选择排序"><a href="#选择排序" class="headerlink" title="选择排序"></a>选择排序</h3><blockquote>
-<p>它的工作原理是每一次从待排序的数据元素中选出最小（或最大）的一个元素，存放在序列的起始位置，然后，再从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。以此类推，直到全部待排序的数据元素排完。 </p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> &amp;a, <span class="keyword">int</span> &amp;b)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> temp = a;</span><br><span class="line">	a = b;</span><br><span class="line">	b = temp;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectionSort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	<span class="keyword">int</span> minIndex;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n - <span class="number">1</span>; i++) &#123;</span><br><span class="line">		minIndex = i;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = i + <span class="number">1</span>; j &lt; n; j++) &#123;</span><br><span class="line">			<span class="keyword">if</span> (arr[j] &lt; arr[minIndex]) &#123;</span><br><span class="line">				minIndex = j;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (minIndex != i) &#123;</span><br><span class="line">			swap(arr[i], arr[minIndex]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="插入排序"><a href="#插入排序" class="headerlink" title="插入排序"></a>插入排序</h3><blockquote>
-<p>插入排序的基本操作就是将一个数据插入到已经排好序的有序数据中，从而得到一个新的、个数加一的有序数据，算法适用于少量数据的排序。</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">insertionSort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; n; i++) &#123;</span><br><span class="line">		<span class="keyword">int</span> cur = arr[i];</span><br><span class="line">		<span class="keyword">int</span> preIndex = i - <span class="number">1</span>;</span><br><span class="line">		<span class="keyword">while</span> (preIndex &gt;= <span class="number">0</span> &amp;&amp; arr[preIndex] &gt; cur) &#123;</span><br><span class="line">			arr[preIndex + <span class="number">1</span>] = arr[preIndex];</span><br><span class="line">			preIndex--;</span><br><span class="line">		&#125;</span><br><span class="line">		arr[preIndex + <span class="number">1</span>] = cur;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="归并排序"><a href="#归并排序" class="headerlink" title="归并排序"></a>归并排序</h3><blockquote>
-<p>归并排序是建立在归并操作上的一种有效的排序算法,该算法是采用分治法的一个非常典型的应用。将已有序的子序列合并，得到完全有序的序列；即先使每个子序列有序，再使子序列段间有序。若将两个有序表合并成一个有序表，称为二路归并。</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; merge(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;left, <span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;right) &#123;</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; res;</span><br><span class="line">	<span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">while</span> (i &lt; left.size() &amp;&amp; j &lt; right.size()) &#123;</span><br><span class="line">		<span class="keyword">if</span> (left[i] &lt; right[j]) &#123;</span><br><span class="line">			res.push_back(left[i++]);</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">else</span> &#123;</span><br><span class="line">			res.push_back(right[j++]);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (i &lt; left.size()) &#123;</span><br><span class="line">		res.push_back(left[i++]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">while</span> (j &lt; right.size()) &#123;</span><br><span class="line">		res.push_back(right[j++]);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">mergeSort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	<span class="keyword">if</span> (n &lt; <span class="number">2</span>) <span class="keyword">return</span>;</span><br><span class="line">	<span class="keyword">int</span> mid = n / <span class="number">2</span>;</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; left(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(arr.begin(), arr.begin() + mid));</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; right(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(arr.begin() + mid, arr.end()));</span><br><span class="line">	mergeSort(left);</span><br><span class="line">	mergeSort(right);</span><br><span class="line">	arr = merge(left, right);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="快速排序"><a href="#快速排序" class="headerlink" title="快速排序"></a>快速排序</h3><blockquote>
-<p>通过一趟排序将要排序的数据分割成独立的两部分，其中一部分的所有数据都比另外一部分的所有数据都要小，然后再按此方法对这两部分数据分别进行快速排序，整个排序过程可以递归进行，以此达到整个数据变成有序序列。</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">partition</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> pivot = left;</span><br><span class="line">	<span class="keyword">int</span> index = pivot + <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = index; i &lt;= right; i++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (arr[i] &lt; arr[pivot]) &#123;</span><br><span class="line">			swap(arr[i], arr[index]);</span><br><span class="line">			index++;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	swap(arr[pivot], arr[index - <span class="number">1</span>]);</span><br><span class="line">	<span class="keyword">return</span> index - <span class="number">1</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">quickSort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	<span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">		<span class="keyword">int</span> partitionIndex = partition(arr, left, right);</span><br><span class="line">		quickSort(arr, left, partitionIndex - <span class="number">1</span>);</span><br><span class="line">		quickSort(arr, partitionIndex + <span class="number">1</span>, right);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="堆排序"><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h3><blockquote>
-<p>堆排序是指利用堆这种数据结构所设计的一种排序算法。堆是一个近似完全二叉树的结构，并同时满足堆积的性质：即子结点的键值或索引总是小于（或者大于）它的父节点。</p>
-</blockquote>
-<p>在堆排序中，主要有以下几个操作：</p>
-<ul>
-<li>创建最大堆：将堆中的所有数据重新排序，使其满足最大堆的性质</li>
-<li>堆排序：移除位于第一个根节点的数据，并做最大堆调整的递归运算</li>
-<li>最大堆调整：将堆的末端子节点作调整，使得子节点永远小于父节点</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapify</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr, <span class="keyword">int</span> len, <span class="keyword">int</span> index)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> left = index * <span class="number">2</span> + <span class="number">1</span>;</span><br><span class="line">	<span class="keyword">int</span> right = index * <span class="number">2</span> + <span class="number">2</span>;</span><br><span class="line">	<span class="keyword">int</span> lagest = index;</span><br><span class="line">	<span class="keyword">if</span> (left&lt;len&amp;&amp;arr[left]&gt;arr[lagest]) &#123;</span><br><span class="line">		lagest = left;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (right&lt;len&amp;&amp;arr[right]&gt;arr[lagest]) &#123;</span><br><span class="line">		lagest = right;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> (lagest != index) &#123;</span><br><span class="line">		swap(arr[lagest], arr[index]);</span><br><span class="line">		heapify(arr, len, lagest);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">buildMaxHeap</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = n / <span class="number">2</span>; i &gt;= <span class="number">0</span>; i--) &#123;</span><br><span class="line">		heapify(arr, n, i);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">heapSort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	buildMaxHeap(arr);</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = n - <span class="number">1</span>; i &gt; <span class="number">0</span>; i--) &#123;</span><br><span class="line">		swap(arr[i], arr[<span class="number">0</span>]);</span><br><span class="line">		heapify(arr, i, <span class="number">0</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="基数排序"><a href="#基数排序" class="headerlink" title="基数排序"></a>基数排序</h3><blockquote>
-<p>基数排序属于“分配式排序”，又称“桶子法”（bucket sort）或bin sort，顾名思义，它是透过键值的部份资讯，将要排序的元素分配至某些“桶”中，藉以达到排序的作用。</p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">radixSort</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;arr, <span class="keyword">int</span> maxDigit)</span> </span>&#123;</span><br><span class="line">	<span class="keyword">int</span> n = arr.size();</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt; buckets(<span class="number">10</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;());</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= maxDigit; i++) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; n; j++) &#123;</span><br><span class="line">			<span class="keyword">int</span> index = arr[j] / (i + <span class="number">1</span>) % <span class="number">10</span>;</span><br><span class="line">			buckets[index].push_back(arr[j]);</span><br><span class="line">		&#125;</span><br><span class="line">		arr.clear();</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; <span class="number">10</span>; j++) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> k = <span class="number">0</span>; k &lt; buckets[j].size(); k++) &#123;</span><br><span class="line">				arr.push_back(buckets[j][k]);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		buckets = <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&gt;(<span class="number">10</span>, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;());</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            <p>
+              算法分类常见的排序算法可分为两大类：
+
+非线性时间比较类排序：通过比较来决定元素间的相对次序，由于其时间复杂度不能突破O(nlogn)，因此称为非线性时间比较类排序。线性时间非比较类排序：不通过比较来
+              ...
+            </p>
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2019/01/27/排序算法总结/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
@@ -2215,173 +1860,20 @@
       
         
           
-            <h1 id="Capacitated-Facility-Location-Problem"><a href="#Capacitated-Facility-Location-Problem" class="headerlink" title="Capacitated Facility Location Problem"></a>Capacitated Facility Location Problem</h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
-<p>Suppose there are n facilities and m customers. We wish to choose:<br>(1) which of the n facilities to open<br>(2) the assignment of customers to facilities<br>The objective is to minimize the sum of the opening cost and the assignment cost.</p>
-</blockquote>
-<p><strong>Note:</strong> The total demand assigned to a facility must not exceed its capacity.</p>
-<p><strong>input:</strong><br><img src="/2018/12/21/算法设计与分析-有容量设施选址问题/1.png" alt="图1"></p>
-<h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><h3 id="算法一：贪心算法"><a href="#算法一：贪心算法" class="headerlink" title="算法一：贪心算法"></a>算法一：贪心算法</h3><p>该算法主要的贪心策略为：创建一个bool二维数组alloc，alloc[i][j]表示第i个顾客可以分配到第j个设施。在整个assignmentCost表中找到cost最小且可以被分配的assignmentCost[i][j]，该cost对应顾客i和设施j，如果该设施没有足够的容量给该顾客，那么将alloc[i][j]标记为false；如果该设施有足够的容量，就将该顾客分配给该设施，并将alloc[i]标记为false。</p>
-<h3 id="主要代码"><a href="#主要代码" class="headerlink" title="主要代码"></a>主要代码</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">获取贪心算法执行后的状态</span></span><br><span class="line"><span class="comment">State.cost:该状态的费用</span></span><br><span class="line"><span class="comment">State.occupy:每个设施已分配的空间</span></span><br><span class="line"><span class="comment">State.assign:每个顾客所分配的设施</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">State Greedy::getBestState() &#123;</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; assign(customer, <span class="number">-1</span>);</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; occupy(facility, <span class="number">0</span>);</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;&gt; alloc(customer, <span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;(facility, <span class="literal">true</span>));</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; customer; i++) &#123;</span><br><span class="line">		<span class="keyword">int</span> custom, faci;</span><br><span class="line">		<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">			findMin(alloc, custom, faci);</span><br><span class="line">			<span class="comment">/*该设施容量足够*/</span></span><br><span class="line">			<span class="keyword">if</span> (occupy[faci] + demand[custom] &lt;= capacity[faci]) &#123;</span><br><span class="line">				<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; alloc[custom].size(); j++) &#123;</span><br><span class="line">					alloc[custom][j] = <span class="literal">false</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				occupy[faci] += demand[custom];</span><br><span class="line">				assign[custom] = faci;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">/*该设施容量不够*/</span></span><br><span class="line">			<span class="keyword">else</span> &#123;</span><br><span class="line">				alloc[custom][faci] = <span class="literal">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">double</span> cost = calculateCost(occupy, assign); <span class="comment">//计算cost</span></span><br><span class="line">	<span class="keyword">return</span> State(cost, occupy, assign);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">找到cost最小且可以被分配的顾客和设施</span></span><br><span class="line"><span class="comment">alloc[i][j]:顾客i是否可以分配到设施j</span></span><br><span class="line"><span class="comment">custom:找到的顾客</span></span><br><span class="line"><span class="comment">faci:找到的设施</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">void</span> Greedy::findMin(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;&gt; &amp;alloc, <span class="keyword">int</span> &amp;custom, <span class="keyword">int</span> &amp;faci) &#123;</span><br><span class="line">	<span class="keyword">int</span> m = INT_MAX;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; assignmentCost.size(); i++) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; assignmentCost[i].size(); j++) &#123;</span><br><span class="line">			<span class="keyword">if</span> (alloc[i][j] &amp;&amp; assignmentCost[i][j] &lt; m) &#123;</span><br><span class="line">				m = assignmentCost[i][j];</span><br><span class="line">				custom = i;</span><br><span class="line">				faci = j;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">计算cost</span></span><br><span class="line"><span class="comment">occupy:每个设施已分配的空间</span></span><br><span class="line"><span class="comment">assign:每个顾客分配的设施</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">double</span> Greedy::calculateCost(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; &amp;occupy, <span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;assign) &#123;</span><br><span class="line">	<span class="keyword">double</span> cost = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; facility; i++) &#123;</span><br><span class="line">		cost += (occupy[i] &gt; <span class="number">0</span>) ? openCost[i] : <span class="number">0</span>; <span class="comment">//判断该设施是否已分配，如果是，则加上开启该设施的代价</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; customer; i++) &#123;</span><br><span class="line">		cost += assignmentCost[i][assign[i]];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> cost;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h3><table width="100%">
-<tr><td></td><td>Result</td><td>Time(s)</td></tr>
-<tr><td>p1</td><td>9307</td><td>0.005</td></tr>
-<tr><td>p2</td><td>7993</td><td>0.004</td></tr>
-<tr><td>p3</td><td>9993</td><td>0.005</td></tr>
-<tr><td>p4</td><td>11993</td><td>0.004</td></tr>
-<tr><td>p5</td><td>9220</td><td>0.005</td></tr>
-<tr><td>p6</td><td>7906</td><td>0.004</td></tr>
-<tr><td>p7</td><td>9906</td><td>0.005</td></tr>
-<tr><td>p8</td><td>11906</td><td>0.004</td></tr>
-<tr><td>p9</td><td>9040</td><td>0.005</td></tr>
-<tr><td>p10</td><td>7726</td><td>0.004</td></tr>
-<tr><td>p11</td><td>9726</td><td>0.006</td></tr>
-<tr><td>p12</td><td>11726</td><td>0.004</td></tr>
-<tr><td>p13</td><td>12032</td><td>0.007</td></tr>
-<tr><td>p14</td><td>9180</td><td>0.007</td></tr>
-<tr><td>p15</td><td>13180</td><td>0.008</td></tr>
-<tr><td>p16</td><td>17180</td><td>0.009</td></tr>
-<tr><td>p17</td><td>12032</td><td>0.009</td></tr>
-<tr><td>p18</td><td>9180</td><td>0.009</td></tr>
-<tr><td>p19</td><td>13180</td><td>0.008</td></tr>
-<tr><td>p20</td><td>17180</td><td>0.009</td></tr>
-<tr><td>p21</td><td>12032</td><td>0.009</td></tr>
-<tr><td>p22</td><td>9180</td><td>0.008</td></tr>
-<tr><td>p23</td><td>13180</td><td>0.008</td></tr>
-<tr><td>p24</td><td>17180</td><td>0.008</td></tr>
-<tr><td>p25</td><td>19248</td><td>0.054</td></tr>
-<tr><td>p26</td><td>16182</td><td>0.054</td></tr>
-<tr><td>p27</td><td>21582</td><td>0.055</td></tr>
-<tr><td>p28</td><td>26982</td><td>0.054</td></tr>
-<tr><td>p29</td><td>19224</td><td>0.054</td></tr>
-<tr><td>p30</td><td>16158</td><td>0.072</td></tr>
-<tr><td>p31</td><td>21558</td><td>0.053</td></tr>
-<tr><td>p32</td><td>26958</td><td>0.056</td></tr>
-<tr><td>p33</td><td>19055</td><td>0.054</td></tr>
-<tr><td>p34</td><td>15989</td><td>0.054</td></tr>
-<tr><td>p35</td><td>21389</td><td>0.055</td></tr>
-<tr><td>p36</td><td>26789</td><td>0.056</td></tr>
-<tr><td>p37</td><td>19055</td><td>0.052</td></tr>
-<tr><td>p38</td><td>15989</td><td>0.053</td></tr>
-<tr><td>p39</td><td>21389</td><td>0.054</td></tr>
-<tr><td>p40</td><td>26789</td><td>0.055</td></tr>
-<tr><td>p41</td><td>7103</td><td>0.009</td></tr>
-<tr><td>p42</td><td>9957</td><td>0.015</td></tr>
-<tr><td>p43</td><td>12448</td><td>0.018</td></tr>
-<tr><td>p44</td><td>7222</td><td>0.009</td></tr>
-<tr><td>p45</td><td>9848</td><td>0.016</td></tr>
-<tr><td>p46</td><td>12639</td><td>0.018</td></tr>
-<tr><td>p47</td><td>6490</td><td>0.009</td></tr>
-<tr><td>p48</td><td>9044</td><td>0.015</td></tr>
-<tr><td>p49</td><td>12420</td><td>0.018</td></tr>
-<tr><td>p50</td><td>10060</td><td>0.011</td></tr>
-<tr><td>p51</td><td>11396</td><td>0.019</td></tr>
-<tr><td>p52</td><td>10764</td><td>0.012</td></tr>
-<tr><td>p53</td><td>12834</td><td>0.022</td></tr>
-<tr><td>p54</td><td>10143</td><td>0.011</td></tr>
-<tr><td>p55</td><td>11938</td><td>0.022</td></tr>
-<tr><td>p56</td><td>23882</td><td>0.087</td></tr>
-<tr><td>p57</td><td>32882</td><td>0.083</td></tr>
-<tr><td>p58</td><td>53882</td><td>0.081</td></tr>
-<tr><td>p59</td><td>39121</td><td>0.084</td></tr>
-<tr><td>p60</td><td>23882</td><td>0.081</td></tr>
-<tr><td>p61</td><td>32882</td><td>0.082</td></tr>
-<tr><td>p62</td><td>53882</td><td>0.082</td></tr>
-<tr><td>p63</td><td>39121</td><td>0.083</td></tr>
-<tr><td>p64</td><td>23882</td><td>0.082</td></tr>
-<tr><td>p65</td><td>32882</td><td>0.082</td></tr>
-<tr><td>p66</td><td>53882</td><td>0.084</td></tr>
-<tr><td>p67</td><td>39671</td><td>0.085</td></tr>
-<tr><td>p68</td><td>23882</td><td>0.082</td></tr>
-<tr><td>p69</td><td>32882</td><td>0.08</td></tr>
-<tr><td>p70</td><td>53882</td><td>0.081</td></tr>
-<tr><td>p71</td><td>39121</td><td>0.082</td></tr>
-</table>
-
-<h3 id="算法二：模拟退火"><a href="#算法二：模拟退火" class="headerlink" title="算法二：模拟退火"></a>算法二：模拟退火</h3><p>模拟退火算法是一种通用概率演算法，用来在一个大的搜寻空间内找寻命题的最优解。其出发点是基于物理中固体物质的退火过程与一般组合优化问题之间的相似性。模拟退火算法是一种通用的优化算法，其物理退火过程由加温过程、等温过程、冷却过程这三部分组成。<br>模拟退火最重要的部分就是状态产生函数，我在实现中随机采用三种邻域搜索策略的其中一种，一是随机将一位顾客转移到另一个设施，二是随机交换两位顾客，三是随机关闭一个设施。除此之外，模拟退火通常还有一些参数需要手动调整，如初温，末温，降温系数，内循环迭代次数等。</p>
-<h3 id="主要代码-1"><a href="#主要代码-1" class="headerlink" title="主要代码"></a>主要代码</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">模拟退火过程</span></span><br><span class="line"><span class="comment">beginTem:初温</span></span><br><span class="line"><span class="comment">endTem:末温</span></span><br><span class="line"><span class="comment">cool:降温系数</span></span><br><span class="line"><span class="comment">iteration:内循环迭代次数</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">void</span> SA::run(<span class="keyword">double</span> beginTem, <span class="keyword">double</span> endTem, <span class="keyword">double</span> cool, <span class="keyword">int</span> iteration) &#123;</span><br><span class="line">	<span class="comment">/*十次模拟退火过程取其中最好的一次*/</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> count = <span class="number">0</span>; count &lt; <span class="number">10</span>; count++) &#123;</span><br><span class="line">		genRandomState(); <span class="comment">//随机产生一个当前状态</span></span><br><span class="line">		bestStateForEveryIteration = curState; <span class="comment">//记录每次循环的最好状态</span></span><br><span class="line">		<span class="keyword">double</span> tem = beginTem;</span><br><span class="line">		<span class="comment">/*模拟退火主过程*/</span></span><br><span class="line">		<span class="keyword">while</span> (tem &gt;= endTem) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; iteration; i++) &#123;</span><br><span class="line">				<span class="keyword">int</span> ran = rand() % <span class="number">5</span>; <span class="comment">//产生一个随机数，根据随机数选择邻域策略</span></span><br><span class="line">				<span class="comment">/*随机关闭一个设施*/</span></span><br><span class="line">				<span class="keyword">if</span> (ran &lt; <span class="number">1</span>) &#123;</span><br><span class="line">					State nextState = closeRandomFacility();</span><br><span class="line">					<span class="keyword">if</span> (<span class="built_in">exp</span>((curState.cost - nextState.cost) / tem) &gt;= rand() % <span class="number">100</span> / <span class="number">100.0</span>) &#123;</span><br><span class="line">						curState = nextState;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="comment">/*随机交换两位顾客*/</span></span><br><span class="line">				<span class="keyword">else</span> <span class="keyword">if</span> (ran &lt; <span class="number">3</span>) &#123;</span><br><span class="line">					State nextState = exchangeTwoCustomer();</span><br><span class="line">					<span class="keyword">if</span> (<span class="built_in">exp</span>((curState.cost - nextState.cost) / tem) &gt;= rand() % <span class="number">100</span> / <span class="number">100.0</span>) &#123;</span><br><span class="line">						curState = nextState;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="comment">/*随机将一位顾客转移到另一个设施*/</span></span><br><span class="line">				<span class="keyword">else</span> &#123;</span><br><span class="line">					State nextState = moveCustomerToAnotherFacility();</span><br><span class="line">					<span class="keyword">if</span> (<span class="built_in">exp</span>((curState.cost - nextState.cost) / tem) &gt;= rand() % <span class="number">100</span> / <span class="number">100.0</span>) &#123;</span><br><span class="line">						curState = nextState;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="comment">/*更新本次循环的最好状态*/</span></span><br><span class="line">				<span class="keyword">if</span> (curState.cost &lt; bestStateForEveryIteration.cost) &#123;</span><br><span class="line">					bestStateForEveryIteration = curState;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			tem *= cool; <span class="comment">//降温</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; bestStateForEveryIteration.cost &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		<span class="comment">/*保存十次循环的最好状态*/</span></span><br><span class="line">		<span class="keyword">if</span> (bestStateForEveryIteration.cost &lt; bestState.cost)</span><br><span class="line">			bestState = bestStateForEveryIteration;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机产生一个初始状态*/</span></span><br><span class="line"><span class="keyword">void</span> SA::genRandomState() &#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		curState.assign = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(customer);</span><br><span class="line">		curState.occupy = <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt;(facility, <span class="number">0</span>);</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; customer; i++) &#123;</span><br><span class="line">			curState.assign[i] = rand() % facility;</span><br><span class="line">			curState.occupy[curState.assign[i]] += demand[i];</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (isFeasible(curState.occupy)) &#123;</span><br><span class="line">			curState.cost = calculateCost(curState.occupy, curState.assign);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机将一位顾客转移到另一个设施*/</span></span><br><span class="line">State SA::moveCustomerToAnotherFacility() &#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		<span class="keyword">int</span> index = rand() % customer; <span class="comment">//随机选择一位顾客</span></span><br><span class="line">		<span class="keyword">int</span> newFacility = rand() % facility; <span class="comment">//随机选择一个设施</span></span><br><span class="line">		<span class="keyword">if</span> (curState.occupy[newFacility] + demand[index] &lt;= capacity[newFacility]) &#123;</span><br><span class="line">			State nextState = curState;</span><br><span class="line">			nextState.occupy[nextState.assign[index]] -= demand[index];</span><br><span class="line">			nextState.assign[index] = newFacility;</span><br><span class="line">			nextState.occupy[newFacility] += demand[index];</span><br><span class="line">			nextState.cost = calculateCost(nextState.occupy, nextState.assign);</span><br><span class="line">			<span class="keyword">return</span> nextState;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机交换两位顾客*/</span></span><br><span class="line">State SA::exchangeTwoCustomer() &#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		<span class="keyword">int</span> index1 = rand() % customer; <span class="comment">//随机选择顾客1</span></span><br><span class="line">		<span class="keyword">int</span> index2 = rand() % customer; <span class="comment">//随机选择顾客2</span></span><br><span class="line">		<span class="keyword">if</span> (curState.occupy[curState.assign[index1]] - demand[index1] + demand[index2] &lt;= capacity[curState.assign[index1]]</span><br><span class="line">			&amp;&amp; curState.occupy[curState.assign[index2]] - demand[index2] + demand[index1] &lt;= capacity[curState.assign[index2]]) &#123;</span><br><span class="line">			State nextState = curState;</span><br><span class="line">			nextState.occupy[nextState.assign[index1]] = nextState.occupy[nextState.assign[index1]] - demand[index1] + demand[index2];</span><br><span class="line">			nextState.occupy[nextState.assign[index2]] = nextState.occupy[nextState.assign[index2]] - demand[index2] + demand[index1];</span><br><span class="line">			<span class="keyword">int</span> temp = nextState.assign[index1];</span><br><span class="line">			nextState.assign[index1] = nextState.assign[index2];</span><br><span class="line">			nextState.assign[index2] = temp;</span><br><span class="line">			nextState.cost = calculateCost(nextState.occupy, nextState.assign);</span><br><span class="line">			<span class="keyword">return</span> nextState;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机关闭一个设施*/</span></span><br><span class="line">State SA::closeRandomFacility() &#123;</span><br><span class="line">	<span class="keyword">int</span> closeFacility = rand() % facility; <span class="comment">//随机选择一个要关闭的设施</span></span><br><span class="line">	State nextState = curState;</span><br><span class="line">	nextState.occupy[closeFacility] = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; customer; j++) &#123;</span><br><span class="line">		<span class="comment">/*找到分配到要关闭设施的顾客*/</span></span><br><span class="line">		<span class="keyword">if</span> (nextState.assign[j] == closeFacility) &#123;</span><br><span class="line">			<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">				<span class="keyword">int</span> newFacility = rand() % facility; <span class="comment">//随机为该顾客选择一个新设施</span></span><br><span class="line">				<span class="keyword">if</span> (nextState.occupy[newFacility] + demand[j] &lt;= capacity[newFacility]) &#123;</span><br><span class="line">					nextState.assign[j] = newFacility;</span><br><span class="line">					nextState.occupy[newFacility] += demand[j];</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	nextState.cost = calculateCost(nextState.occupy, nextState.assign);</span><br><span class="line">	<span class="keyword">return</span> nextState;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">判断当前设施的占用状态是否可行</span></span><br><span class="line"><span class="comment">occupy:设施的占用状态</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">bool</span> SA::isFeasible(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; &amp;occupy) &#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; occupy.size(); i++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (occupy[i] &gt; capacity[i]) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="输出-1"><a href="#输出-1" class="headerlink" title="输出"></a>输出</h3><table width="100%">
-<tr><td></td><td>Result</td><td>Time(s)</td></tr>
-<tr><td>p1</td><td>8950</td><td>2.581</td></tr>
-<tr><td>p2</td><td>8011</td><td>2.588</td></tr>
-<tr><td>p3</td><td>9525</td><td>2.592</td></tr>
-<tr><td>p4</td><td>11063</td><td>2.643</td></tr>
-<tr><td>p5</td><td>9119</td><td>2.786</td></tr>
-<tr><td>p6</td><td>7841</td><td>2.702</td></tr>
-<tr><td>p7</td><td>9759</td><td>2.721</td></tr>
-<tr><td>p8</td><td>11189</td><td>2.731</td></tr>
-<tr><td>p9</td><td>8711</td><td>2.505</td></tr>
-<tr><td>p10</td><td>7767</td><td>2.503</td></tr>
-<tr><td>p11</td><td>9181</td><td>2.509</td></tr>
-<tr><td>p12</td><td>10453</td><td>2.514</td></tr>
-<tr><td>p13</td><td>9444</td><td>2.53</td></tr>
-<tr><td>p14</td><td>8015</td><td>2.523</td></tr>
-<tr><td>p15</td><td>9744</td><td>2.506</td></tr>
-<tr><td>p16</td><td>11679</td><td>2.518</td></tr>
-<tr><td>p17</td><td>9258</td><td>2.495</td></tr>
-<tr><td>p18</td><td>7900</td><td>2.51</td></tr>
-<tr><td>p19</td><td>10007</td><td>2.521</td></tr>
-<tr><td>p20</td><td>11965</td><td>2.53</td></tr>
-<tr><td>p21</td><td>8686</td><td>2.47</td></tr>
-<tr><td>p22</td><td>7909</td><td>2.497</td></tr>
-<tr><td>p23</td><td>9872</td><td>2.464</td></tr>
-<tr><td>p24</td><td>11444</td><td>2.469</td></tr>
-<tr><td>p25</td><td>15214</td><td>4.129</td></tr>
-<tr><td>p26</td><td>14073</td><td>4.123</td></tr>
-<tr><td>p27</td><td>16139</td><td>4.106</td></tr>
-<tr><td>p28</td><td>18126</td><td>4.1</td></tr>
-<tr><td>p29</td><td>15433</td><td>4.127</td></tr>
-<tr><td>p30</td><td>13485</td><td>4.143</td></tr>
-<tr><td>p31</td><td>16344</td><td>4.133</td></tr>
-<tr><td>p32</td><td>19387</td><td>4.145</td></tr>
-<tr><td>p33</td><td>14511</td><td>4.096</td></tr>
-<tr><td>p34</td><td>12636</td><td>4.099</td></tr>
-<tr><td>p35</td><td>15439</td><td>4.108</td></tr>
-<tr><td>p36</td><td>17748</td><td>4.105</td></tr>
-<tr><td>p37</td><td>13732</td><td>4.094</td></tr>
-<tr><td>p38</td><td>13508</td><td>4.093</td></tr>
-<tr><td>p39</td><td>15310</td><td>4.07</td></tr>
-<tr><td>p40</td><td>17069</td><td>4.077</td></tr>
-<tr><td>p41</td><td>6920</td><td>3.215</td></tr>
-<tr><td>p42</td><td>6570</td><td>2.972</td></tr>
-<tr><td>p43</td><td>6271</td><td>2.836</td></tr>
-<tr><td>p44</td><td>7962</td><td>3.294</td></tr>
-<tr><td>p45</td><td>7568</td><td>2.972</td></tr>
-<tr><td>p46</td><td>7171</td><td>2.861</td></tr>
-<tr><td>p47</td><td>7081</td><td>3.298</td></tr>
-<tr><td>p48</td><td>6762</td><td>2.997</td></tr>
-<tr><td>p49</td><td>6664</td><td>2.883</td></tr>
-<tr><td>p50</td><td>9235</td><td>3.424</td></tr>
-<tr><td>p51</td><td>8574</td><td>3.286</td></tr>
-<tr><td>p52</td><td>9735</td><td>3.542</td></tr>
-<tr><td>p53</td><td>10140</td><td>3.29</td></tr>
-<tr><td>p54</td><td>9475</td><td>3.646</td></tr>
-<tr><td>p55</td><td>8809</td><td>3.282</td></tr>
-<tr><td>p56</td><td>29207</td><td>4.951</td></tr>
-<tr><td>p57</td><td>36679</td><td>4.978</td></tr>
-<tr><td>p58</td><td>48192</td><td>4.994</td></tr>
-<tr><td>p59</td><td>38646</td><td>4.996</td></tr>
-<tr><td>p60</td><td>29440</td><td>4.896</td></tr>
-<tr><td>p61</td><td>33582</td><td>4.887</td></tr>
-<tr><td>p62</td><td>43497</td><td>4.898</td></tr>
-<tr><td>p63</td><td>35568</td><td>4.885</td></tr>
-<tr><td>p64</td><td>29247</td><td>4.888</td></tr>
-<tr><td>p65</td><td>33168</td><td>4.875</td></tr>
-<tr><td>p66</td><td>42706</td><td>4.87</td></tr>
-<tr><td>p67</td><td>34610</td><td>4.928</td></tr>
-<tr><td>p68</td><td>28324</td><td>4.896</td></tr>
-<tr><td>p69</td><td>34992</td><td>4.886</td></tr>
-<tr><td>p70</td><td>43708</td><td>4.934</td></tr>
-<tr><td>p71</td><td>35096</td><td>4.938</td></tr>
-</table>
-
-<h2 id="算法对比"><a href="#算法对比" class="headerlink" title="算法对比"></a>算法对比</h2><ul>
-<li>速度：从时间上可以看出，贪心算法运行速度很快，而模拟退火因为每一轮都跑了十次，所以速度较慢。</li>
-<li>结果：贪心算法的结果没有模拟退火好。尤其是贪心策略没有考虑设施开启时的费用，仅考虑分配顾客时的费用，容易陷入局部最优。而模拟退火在整个大的搜索空间求解，并通过几种邻域搜索策略，即使陷入局部最优解，也有几率可以跳出，最终得到的解与全局最优解更加接近。</li>
-</ul>
-<h2 id="实验思考"><a href="#实验思考" class="headerlink" title="实验思考"></a>实验思考</h2><p>在实现贪心算法时，我后来考虑到了把设施的开启费用加进去，我将整个顾客分配损失表assignmentCost每一列加上了对应设施的开启费用，然后重复之前的贪心策略，选取费用最小的进行分配，如果分配成功且之前该设施未开启，就把assignmentCost的该列减去开启费用，即开启该设施。然而做了这个改进之后并没有之前的效果好，感觉应该是因为这种贪心策略会使得很多顾客挤在某几个设施。<br>在实现模拟退火时，一开始我实现了两种邻域搜索策略，即随机将一位顾客分配到另一个设施和随机交换两位顾客，在观察结果时我发现，几乎每个设施都打开了，因此我引入了第三种邻域搜索策略，即随机关闭一个设施，并使得这种操作的概率较低，这样做似乎比较容易跳出局部最优，效果挺好。</p>
-<p>具体每个测试样例的详细结果和项目源码请参考：<a href="https://github.com/zhulinyin/CFLP" target="_blank" rel="noopener">github</a></p>
-
+            <p>
+              Capacitated Facility Location Problem题目描述
+Suppose there are n facilities and m customers. We wish to
+              ...
+            </p>
+          <!--noindex-->
           
+            <div class="post-button text-center">
+              <a class="btn" href="/2018/12/21/算法设计与分析-有容量设施选址问题/#more" rel="contents">
+                post.read_more &raquo;
+              </a>
+            </div>
+          
+          <!--/noindex-->
         
       
     </div>
