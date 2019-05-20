@@ -96,18 +96,14 @@
 
 
 
-  <meta name="description" content="JVM的内存模型分为五个区域 PC寄存器由于在JVM中，多线程是通过线程轮流切换来获得CPU执行时间的，因此，在任一具体时刻，一个CPU的内核只会执行一条线程中的指令。为了使得每个线程都在线程切换后能够恢复在切换之前的程序执行位置，每个线程都需要有自己独立的程序计数器，用以记录当前执行到的指令。 Java栈Java栈中存放的是一个个的栈帧，每个栈帧对应一个被调用的方法，栈帧中存放了：  局部变量表">
-<meta name="keywords" content="Java">
-<meta property="og:type" content="article">
-<meta property="og:title" content="JVM内存模型">
-<meta property="og:url" content="http://zhulinyin.github.io/2019/03/16/JVM内存模型/index.html">
+  <meta property="og:type" content="article">
+<meta property="og:title" content="系统分析与设计05">
+<meta property="og:url" content="http://zhulinyin.github.io/2019/05/20/系统分析与设计05/index.html">
 <meta property="og:site_name" content="zhulinyin">
-<meta property="og:description" content="JVM的内存模型分为五个区域 PC寄存器由于在JVM中，多线程是通过线程轮流切换来获得CPU执行时间的，因此，在任一具体时刻，一个CPU的内核只会执行一条线程中的指令。为了使得每个线程都在线程切换后能够恢复在切换之前的程序执行位置，每个线程都需要有自己独立的程序计数器，用以记录当前执行到的指令。 Java栈Java栈中存放的是一个个的栈帧，每个栈帧对应一个被调用的方法，栈帧中存放了：  局部变量表">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2019-03-17T10:36:45.900Z">
+<meta property="og:updated_time" content="2019-05-20T01:24:15.093Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="JVM内存模型">
-<meta name="twitter:description" content="JVM的内存模型分为五个区域 PC寄存器由于在JVM中，多线程是通过线程轮流切换来获得CPU执行时间的，因此，在任一具体时刻，一个CPU的内核只会执行一条线程中的指令。为了使得每个线程都在线程切换后能够恢复在切换之前的程序执行位置，每个线程都需要有自己独立的程序计数器，用以记录当前执行到的指令。 Java栈Java栈中存放的是一个个的栈帧，每个栈帧对应一个被调用的方法，栈帧中存放了：  局部变量表">
+<meta name="twitter:title" content="系统分析与设计05">
 
 
 
@@ -115,7 +111,7 @@
 
   
   
-  <link rel="canonical" href="http://zhulinyin.github.io/2019/03/16/JVM内存模型/"/>
+  <link rel="canonical" href="http://zhulinyin.github.io/2019/05/20/系统分析与设计05/"/>
 
 
 
@@ -125,7 +121,7 @@
   };
 </script>
 
-  <title>JVM内存模型 | zhulinyin</title>
+  <title>系统分析与设计05 | zhulinyin</title>
   
 
 
@@ -290,7 +286,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/03/16/JVM内存模型/"/>
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/05/20/系统分析与设计05/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Li Jiangtao"/>
@@ -307,7 +303,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">JVM内存模型
+          <h1 class="post-title" itemprop="name headline">系统分析与设计05
 
               
             
@@ -333,24 +329,12 @@
                 
               
 
-              <time title="post.createdsymbol.colon2019-03-16 19:32:25" itemprop="dateCreated datePublished" datetime="2019-03-16T19:32:25+08:00">2019-03-16</time>
+              <time title="post.createdsymbol.colon2019-05-20 09:24:14 / post.modifiedsymbol.colon09:24:15" itemprop="dateCreated datePublished" datetime="2019-05-20T09:24:14+08:00">2019-05-20</time>
             
 
             
               
 
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">post.edited</span>
-                
-                <time title="post.modifiedsymbol.colon2019-03-17 18:36:45" itemprop="dateModified" datetime="2019-03-17T18:36:45+08:00">2019-03-17</time>
               
             
           </span>
@@ -384,31 +368,7 @@
       
 
       
-        <p>JVM的内存模型分为五个区域</p>
-<h3 id="PC寄存器"><a href="#PC寄存器" class="headerlink" title="PC寄存器"></a>PC寄存器</h3><p>由于在JVM中，多线程是通过线程轮流切换来获得CPU执行时间的，因此，在任一具体时刻，一个CPU的内核只会执行一条线程中的指令。为了使得每个线程都在线程切换后能够恢复在切换之前的程序执行位置，每个线程都需要有自己独立的程序计数器，用以记录当前执行到的指令。</p>
-<h3 id="Java栈"><a href="#Java栈" class="headerlink" title="Java栈"></a>Java栈</h3><p>Java栈中存放的是一个个的栈帧，每个栈帧对应一个被调用的方法，栈帧中存放了：</p>
-<ol>
-<li>局部变量表</li>
-<li>操作数栈</li>
-<li>指向运行时常量池的引用</li>
-<li>方法返回地址</li>
-<li>一些额外的附加信息。</li>
-</ol>
-<p>Java栈是线程私有的，当线程执行一个方法时，就会创建一个栈帧并压栈；当方法执行完毕之后，便会将栈帧出栈。</p>
-<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈与Java栈的作用和原理非常相似，区别在于Java栈是为执行Java方法服务的，而本地方法栈则是为执行本地方法服务的。</p>
-<h3 id="Java堆"><a href="#Java堆" class="headerlink" title="Java堆"></a>Java堆</h3><p>Java堆是用来存储对象和数组。堆是被所有线程共享的，在JVM中只有一个堆。</p>
-<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>方法区是被所有线程共享的，它存放了：</p>
-<ol>
-<li>每个类的信息（包括类的名称、方法信息、字段信息）</li>
-<li>静态变量</li>
-<li>运行时常量池（包括class文件中的常量池和运行时产生的常量）<ul>
-<li>class文件中的常量池包含了字面量和符号引用。字面量相当于Java语言的常量，如文本字符串，声明为final的常量等。符号引用包括类和接口的全限定名、字段名称和描述符、方法名称和描述符。</li>
-</ul>
-</li>
-<li>编译器编译后的代码</li>
-</ol>
-<h3 id="JMM-Java内存模型"><a href="#JMM-Java内存模型" class="headerlink" title="JMM(Java内存模型)"></a>JMM(Java内存模型)</h3><p>JMM规定了所有的变量都存储在主内存（Main Memory）中。每个线程还有自己的工作内存（Working Memory），线程的工作内存中保存了该线程使用到的变量的主内存的副本拷贝，线程对变量的所有操作（读取、赋值等）都必须在工作内存中进行，而不能直接读写主内存中的变量。不同的线程之间也无法直接访问对方工作内存中的变量，线程之间值的传递都需要通过主内存来完成。主内存包括Java堆、方法区；线程的工作内存包括Java栈、本地方法栈、PC寄存器。</p>
-
+        
       
     </div>
 
@@ -429,12 +389,6 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/Java/" rel="tag"># Java</a>
-          
-        </div>
-      
 
       
       
@@ -444,8 +398,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/03/13/系统分析与设计01/" rel="next" title="系统分析与设计01">
-                <i class="fa fa-chevron-left"></i> 系统分析与设计01
+              <a href="/2019/05/12/系统分析与设计04/" rel="next" title="系统分析与设计04">
+                <i class="fa fa-chevron-left"></i> 系统分析与设计04
               </a>
             
           </div>
@@ -453,10 +407,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2019/03/27/系统分析与设计02/" rel="prev" title="系统分析与设计02">
-                系统分析与设计02 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -500,17 +450,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            sidebar.toc
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            sidebar.overview
-          </li>
-        </ul>
-      
 
-      <div class="site-overview-wrap sidebar-panel">
+      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -593,23 +534,6 @@
         </div>
       </div>
 
-      
-      <!--noindex-->
-        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-            
-            
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#PC寄存器"><span class="nav-number">1.</span> <span class="nav-text">PC寄存器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java栈"><span class="nav-number">2.</span> <span class="nav-text">Java栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地方法栈"><span class="nav-number">3.</span> <span class="nav-text">本地方法栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java堆"><span class="nav-number">4.</span> <span class="nav-text">Java堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区"><span class="nav-number">5.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JMM-Java内存模型"><span class="nav-number">6.</span> <span class="nav-text">JMM(Java内存模型)</span></a></li></ol></div>
-            
-
-          </div>
-        </div>
-      <!--/noindex-->
       
 
       

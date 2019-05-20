@@ -14,7 +14,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -70,7 +70,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Mist',
     version: '7.1.1',
     sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
     back2top: true,
@@ -100,7 +100,7 @@
 <meta property="og:title" content="zhulinyin">
 <meta property="og:url" content="http://zhulinyin.github.io/page/5/index.html">
 <meta property="og:site_name" content="zhulinyin">
-<meta property="og:locale" content="default">
+<meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zhulinyin">
 
@@ -161,7 +161,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
@@ -270,6 +270,172 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2018/09/25/算法设计与分析-Week4/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2018/09/25/算法设计与分析-Week4/" class="post-title-link" itemprop="url">算法设计与分析-Week4</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">post.posted</span>
+              
+
+              
+                
+              
+
+              <time title="post.createdsymbol.colon2018-09-25 15:46:00" itemprop="dateCreated datePublished" datetime="2018-09-25T15:46:00+08:00">2018-09-25</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">post.edited</span>
+                
+                <time title="post.modifiedsymbol.colon2019-01-27 10:24:01" itemprop="dateModified" datetime="2019-01-27T10:24:01+08:00">2019-01-27</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h1 id="Recover-Binary-Search-Tree"><a href="#Recover-Binary-Search-Tree" class="headerlink" title="Recover Binary Search Tree"></a>Recover Binary Search Tree</h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
+<p>Two elements of a binary search tree (BST) are swapped by mistake.<br>Recover the tree without changing its structure.</p>
+</blockquote>
+<p><strong>Example 1:</strong></p>
+<blockquote>
+<p><strong>Input:</strong> [1,3,null,null,2]<br><strong>Output:</strong> [3,1,null,null,2]  </p>
+</blockquote>
+<p><strong>Example 2:</strong></p>
+<blockquote>
+<p><strong>Input:</strong> [3,1,4,null,null,2]<br><strong>Output:</strong> [2,1,4,null,null,3]  </p>
+</blockquote>
+<h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><p>题目描述的二叉搜索树有两个元素交换了位置，需要将其找出。由于二叉搜索树用中序遍历所得到的序列是递增的，因此对此二叉搜索树进行中序遍历得到的序列必定有两个元素不符合递增的规律，我在遍历过程中找出这两个元素，记为first和second，并在遍历完成后将其交换，以得到正确的二叉搜索树。<br>第一个错误的元素first必定大于其后的一个元素，第二个错误的元素second必定小于其前面的一个元素，因此我用一个preNode记录前一个元素，先找出第一个错误的元素first后，找出第二个错误的元素second，最后进行交换。</p>
+<h2 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * struct TreeNode &#123;</span></span><br><span class="line"><span class="comment"> *     int val;</span></span><br><span class="line"><span class="comment"> *     TreeNode *left;</span></span><br><span class="line"><span class="comment"> *     TreeNode *right;</span></span><br><span class="line"><span class="comment"> *     TreeNode(int x) : val(x), left(NULL), right(NULL) &#123;&#125;</span></span><br><span class="line"><span class="comment"> * &#125;;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    TreeNode* first;</span><br><span class="line">    TreeNode* second;</span><br><span class="line">    TreeNode* preNode;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    Solution() &#123;</span><br><span class="line">        first = <span class="literal">NULL</span>;</span><br><span class="line">        second = <span class="literal">NULL</span>;</span><br><span class="line">        preNode = <span class="keyword">new</span> TreeNode(INT_MIN);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">recoverTree</span><span class="params">(TreeNode* root)</span> </span>&#123;</span><br><span class="line">        traverse(root);</span><br><span class="line">        <span class="comment">/*交换两个错误的元素*/</span></span><br><span class="line">        <span class="keyword">int</span> temp = first-&gt;val;</span><br><span class="line">        first-&gt;val = second-&gt;val;</span><br><span class="line">        second-&gt;val = temp;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">traverse</span><span class="params">(TreeNode* root)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(root == <span class="literal">NULL</span>) <span class="keyword">return</span>;</span><br><span class="line">        traverse(root-&gt;left);</span><br><span class="line">        <span class="keyword">if</span>(first == <span class="literal">NULL</span> &amp;&amp; preNode-&gt;val &gt; root-&gt;val) &#123;</span><br><span class="line">            first = preNode;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(first != <span class="literal">NULL</span> &amp;&amp; preNode-&gt;val &gt; root-&gt;val) &#123;</span><br><span class="line">            second = root;</span><br><span class="line">        &#125;</span><br><span class="line">        preNode = root;</span><br><span class="line">        traverse(root-&gt;right);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -1037,7 +1203,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">state.posts</span>
                   </a>
                 </div>
@@ -1140,7 +1306,7 @@
 
 
 
-  <div class="theme-info">footer.theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.1</div>
+  <div class="theme-info">footer.theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.1.1</div>
 
 
 
@@ -1229,6 +1395,7 @@
 
 
   <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
 
 
 

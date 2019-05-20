@@ -14,7 +14,7 @@
   
 
 
-<html class="theme-next muse use-motion" lang="">
+<html class="theme-next mist use-motion" lang="zh-Hans">
 <head>
   <meta charset="UTF-8"/>
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
@@ -70,7 +70,7 @@
   var NexT = window.NexT || {};
   var CONFIG = {
     root: '/',
-    scheme: 'Muse',
+    scheme: 'Mist',
     version: '7.1.1',
     sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
     back2top: true,
@@ -100,7 +100,7 @@
 <meta property="og:title" content="zhulinyin">
 <meta property="og:url" content="http://zhulinyin.github.io/page/3/index.html">
 <meta property="og:site_name" content="zhulinyin">
-<meta property="og:locale" content="default">
+<meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="zhulinyin">
 
@@ -161,7 +161,7 @@
 
 </head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
 
   
   
@@ -270,6 +270,164 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/31/handler机制总结/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/01/31/handler机制总结/" class="post-title-link" itemprop="url">handler机制总结</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">post.posted</span>
+              
+
+              
+                
+              
+
+              <time title="post.createdsymbol.colon2019-01-31 15:10:39 / post.modifiedsymbol.colon16:17:57" itemprop="dateCreated datePublished" datetime="2019-01-31T15:10:39+08:00">2019-01-31</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>用一个最常见的例子来总结handler的机制：子线程处理耗时操作，然后通知主线程更新UI。</p>
+<h3 id="1-在主线程创建handler对象"><a href="#1-在主线程创建handler对象" class="headerlink" title="1. 在主线程创建handler对象"></a>1. 在主线程创建handler对象</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Handler</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">this</span>(<span class="keyword">null</span>, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Handler</span><span class="params">(Callback callback, <span class="keyword">boolean</span> async)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    ...<span class="comment">// 仅贴出关键代码</span></span><br><span class="line"></span><br><span class="line">    mLooper = Looper.myLooper();</span><br><span class="line">    <span class="keyword">if</span> (mLooper == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(</span><br><span class="line">            <span class="string">"Can't create handler inside thread that has not called Looper.prepare()"</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    mQueue = mLooper.mQueue;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建handler对象的过程会绑定当前线程的looper和该looper的消息队列，主线程的looper在主线程创建时就通过<code>Looper.prepareMainLooper()</code>创建，而子线程要创建looper应该使用<code>Looper.prepare()</code>，因此在子线程创建handler时应先调用<code>Looper.prepare()</code>创建looper。looper在创建的时候就会创建其消息队列。</p>
+<h3 id="2-在子线程处理完耗时操作后通过主线程的handler发送消息"><a href="#2-在子线程处理完耗时操作后通过主线程的handler发送消息" class="headerlink" title="2. 在子线程处理完耗时操作后通过主线程的handler发送消息"></a>2. 在子线程处理完耗时操作后通过主线程的handler发送消息</h3><p>发送消息有两种方式：</p>
+<ol>
+<li><code>sendMessage(Message msg)</code></li>
+<li><code>post(Runnable r)</code></li>
+</ol>
+<p>两者最后均为调用<code>sendMessageAtTime(Message msg, long uptimeMillis)</code>，区别在于后者的<code>msg.callback = r</code>。消息队列会根据消息处理的时间将消息放在合适的位置，而不是直接放在队尾。</p>
+<h3 id="3-主线程的looper会不断从消息队列中取出消息进行分发"><a href="#3-主线程的looper会不断从消息队列中取出消息进行分发" class="headerlink" title="3. 主线程的looper会不断从消息队列中取出消息进行分发"></a>3. 主线程的looper会不断从消息队列中取出消息进行分发</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">loop</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    ...<span class="comment">// 仅贴出关键代码</span></span><br><span class="line">    <span class="keyword">final</span> Looper me = myLooper();</span><br><span class="line">    <span class="keyword">if</span> (me == <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">"No Looper; Looper.prepare() wasn't called on this thread."</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// myLooper()作用：返回sThreadLocal存储的Looper实例；若me为null 则抛出异常</span></span><br><span class="line">    <span class="comment">// 即loop（）执行前必须执行prepare（），从而创建1个Looper实例</span></span><br><span class="line">            </span><br><span class="line">    <span class="keyword">final</span> MessageQueue queue = me.mQueue;</span><br><span class="line">    <span class="comment">// 获取Looper实例中的消息队列对象（MessageQueue）</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (;;) &#123;</span><br><span class="line">    </span><br><span class="line">        Message msg = queue.next(); </span><br><span class="line">        <span class="keyword">if</span> (msg == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// next()：取出消息队列里的消息</span></span><br><span class="line"></span><br><span class="line">        msg.target.dispatchMessage(msg);</span><br><span class="line">        <span class="comment">// 把消息Message派发给消息对象msg的target属性</span></span><br><span class="line">        <span class="comment">// target属性实际是1个handler对象</span></span><br><span class="line"></span><br><span class="line">        msg.recycle();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>loop()</code>首先获取当前线程的looper，因此调用该函数之前必须确定当前线程已经创建了looper。通过一个死循环，从消息队列里取出消息进行分发。</p>
+<p><strong>注意：</strong> 当消息队列没有消息取出来时，主线程会阻塞在loop的<code>queue.next()</code>中的<code>nativePollOnce()</code>方法里，此时主线程会释放CPU资源进入休眠状态，直到下个消息到达或者有事务发生，重新唤醒主线程工作，所以大多数时候主线程处于休眠状态，不会消耗大量CPU资源。</p>
+<h3 id="4-消息会被分发到指定的handler进行处理，更新UI"><a href="#4-消息会被分发到指定的handler进行处理，更新UI" class="headerlink" title="4. 消息会被分发到指定的handler进行处理，更新UI"></a>4. 消息会被分发到指定的handler进行处理，更新UI</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">dispatchMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 1. 若msg.callback属性不为空，则代表使用了post（Runnable r）发送消息</span></span><br><span class="line">    <span class="comment">// 则执行handleCallback(msg)，即回调Runnable对象里复写的run（）</span></span><br><span class="line">    <span class="keyword">if</span> (msg.callback != <span class="keyword">null</span>) &#123;</span><br><span class="line">        handleCallback(msg);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (mCallback != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (mCallback.handleMessage(msg)) &#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 2. 若msg.callback属性为空，则代表使用了sendMessage（Message msg）发送消息</span></span><br><span class="line">        <span class="comment">// 则执行handleMessage(msg)，即回调重写的handleMessage(msg) </span></span><br><span class="line">        handleMessage(msg);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">handleCallback</span><span class="params">(Message message)</span> </span>&#123;</span><br><span class="line">    message.callback.run();</span><br><span class="line">    <span class="comment">// Message对象的callback属性 = 传入的Runnable对象</span></span><br><span class="line">    <span class="comment">// 即回调Runnable对象里复写的run（）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="关于内存泄漏"><a href="#关于内存泄漏" class="headerlink" title="关于内存泄漏"></a>关于内存泄漏</h3><p>由于Java的非静态内部类和匿名内部类会隐式地持有外部类的引用，所以下面的代码会存在内存泄漏的问题。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SampleActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Handler mLeakyHandler = <span class="keyword">new</span> Handler() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// ...</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Post a message and delay its execution for 10 minutes.</span></span><br><span class="line">        mLeakyHandler.postDelayed(<span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">        &#125;, <span class="number">1000</span> * <span class="number">60</span> * <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Go back to the previous Activity.</span></span><br><span class="line">        finish();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>当activity被finish的时候，延迟发送的消息仍然会存活在UI线程的消息队列中，直到10分钟后它被处理掉。这个消息持有activity的Handler的引用，Handler又隐式的持有它的外部类(这里就是SampleActivity)的引用。这个引用会一直存在直到这个消息被处理，所以垃圾回收机制就没法回收这个activity，内存泄露就发生了。需要注意的是：匿名Runnable子类也会导致内存泄露。非静态的匿名类会隐式的持有外部类的引用，所以context会被泄露掉。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SampleActivity</span> <span class="keyword">extends</span> <span class="title">Activity</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Instances of static inner classes do not hold an implicit</span></span><br><span class="line"><span class="comment">    * reference to their outer class.</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">MyHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> WeakReference&lt;SampleActivity&gt; mActivity;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">MyHandler</span><span class="params">(SampleActivity activity)</span> </span>&#123;</span><br><span class="line">            mActivity = <span class="keyword">new</span> WeakReference&lt;SampleActivity&gt;(activity);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">            SampleActivity activity = mActivity.get();</span><br><span class="line">            <span class="keyword">if</span> (activity != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="comment">// ...</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> MyHandler mHandler = <span class="keyword">new</span> MyHandler(<span class="keyword">this</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">    * Instances of anonymous classes do not hold an implicit</span></span><br><span class="line"><span class="comment">    * reference to their outer class when they are "static".</span></span><br><span class="line"><span class="comment">    */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Runnable sRunnable = <span class="keyword">new</span> Runnable() &#123;</span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123; <span class="comment">/* ... */</span> &#125;</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">onCreate</span><span class="params">(Bundle savedInstanceState)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>.onCreate(savedInstanceState);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Post a message and delay its execution for 10 minutes.</span></span><br><span class="line">        mHandler.postDelayed(sRunnable, <span class="number">1000</span> * <span class="number">60</span> * <span class="number">10</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">// Go back to the previous Activity.</span></span><br><span class="line">        finish();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>实现Handler的子类或者使用static修饰内部类。静态的内部类不会持有外部类的引用，所以activity不会被泄露。如果要在Handler内调用外部activity类的方法的话，可以让Handler持有外部activity类的弱引用，这样也不会有泄露activity的风险。关于匿名类造成的泄露问题，我们可以用static修饰这个匿名类对象解决这个问题，因为静态的匿名类也不会持有它外部类的引用。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -854,178 +1012,6 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java关键字及其作用/"/>
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Li Jiangtao"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="zhulinyin"/>
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/01/28/Java关键字及其作用/" class="post-title-link" itemprop="url">Java关键字及其作用</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">post.posted</span>
-              
-
-              
-                
-              
-
-              <time title="post.createdsymbol.colon2019-01-28 16:24:01" itemprop="dateCreated datePublished" datetime="2019-01-28T16:24:01+08:00">2019-01-28</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">post.edited</span>
-                
-                <time title="post.modifiedsymbol.colon2019-02-01 17:51:38" itemprop="dateModified" datetime="2019-02-01T17:51:38+08:00">2019-02-01</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="native"><a href="#native" class="headerlink" title="native"></a>native</h3><blockquote>
-<p>native 关键字可以应用于方法，以指示该方法是用 Java 以外的语言实现的。</p>
-</blockquote>
-<h3 id="strictfp"><a href="#strictfp" class="headerlink" title="strictfp"></a>strictfp</h3><blockquote>
-<p>strictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令人满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点规范IEEE-754来执行。因此如果想让浮点运算更加精确，而且不会因为不同的硬件平台所执行的结果不一致的话，那就请用关键字strictfp。<br>可以将一个类、接口以及方法声明为strictfp，但是不允许对接口中的方法以及构造函数声明strictfp关键字</p>
-</blockquote>
-<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><blockquote>
-<p>synchronized 关键字可以应用于方法或语句块，使得该代码块一次只能被一个线程执行。<br>如果应用于静态方法，那么，当该方法一次由一个线程执行时，整个类将被锁定。<br>如果应用于实例方法，那么，当该方法一次由一个线程访问时，该实例将被锁定。<br>如果应用于对象或数组，当关联的代码块一次由一个线程执行时，对象或数组将被锁定。</p>
-</blockquote>
-<h3 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h3><blockquote>
-<p>transient 关键字可以应用于类的成员变量，使得当该类的实例被序列化时，该变量不被序列化。</p>
-</blockquote>
-<h3 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h3><blockquote>
-<p>volatile 关键字用于表示可以被多个线程异步修改的成员变量。<br>volatile是一种轻量级的同步机制，它主要有两个特性：一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化。</p>
-</blockquote>
-<h3 id="throw-和-throws"><a href="#throw-和-throws" class="headerlink" title="throw 和 throws"></a>throw 和 throws</h3><blockquote>
-<p>throw语句用在方法体内，表示抛出异常，由方法体内的语句处理。<br>throws主要是声明这个方法可能会抛出这种类型的异常，使它的调用者知道要捕获这个异常。</p>
-</blockquote>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java内存回收机制/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1156,6 +1142,178 @@
 <li>常量对象引用。</li>
 <li>本地方法区中的对象引用。</li>
 </ol>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java关键字及其作用/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/01/28/Java关键字及其作用/" class="post-title-link" itemprop="url">Java关键字及其作用</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">post.posted</span>
+              
+
+              
+                
+              
+
+              <time title="post.createdsymbol.colon2019-01-28 16:24:01" itemprop="dateCreated datePublished" datetime="2019-01-28T16:24:01+08:00">2019-01-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">post.edited</span>
+                
+                <time title="post.modifiedsymbol.colon2019-02-01 17:51:38" itemprop="dateModified" datetime="2019-02-01T17:51:38+08:00">2019-02-01</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="native"><a href="#native" class="headerlink" title="native"></a>native</h3><blockquote>
+<p>native 关键字可以应用于方法，以指示该方法是用 Java 以外的语言实现的。</p>
+</blockquote>
+<h3 id="strictfp"><a href="#strictfp" class="headerlink" title="strictfp"></a>strictfp</h3><blockquote>
+<p>strictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令人满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点规范IEEE-754来执行。因此如果想让浮点运算更加精确，而且不会因为不同的硬件平台所执行的结果不一致的话，那就请用关键字strictfp。<br>可以将一个类、接口以及方法声明为strictfp，但是不允许对接口中的方法以及构造函数声明strictfp关键字</p>
+</blockquote>
+<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><blockquote>
+<p>synchronized 关键字可以应用于方法或语句块，使得该代码块一次只能被一个线程执行。<br>如果应用于静态方法，那么，当该方法一次由一个线程执行时，整个类将被锁定。<br>如果应用于实例方法，那么，当该方法一次由一个线程访问时，该实例将被锁定。<br>如果应用于对象或数组，当关联的代码块一次由一个线程执行时，对象或数组将被锁定。</p>
+</blockquote>
+<h3 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h3><blockquote>
+<p>transient 关键字可以应用于类的成员变量，使得当该类的实例被序列化时，该变量不被序列化。</p>
+</blockquote>
+<h3 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h3><blockquote>
+<p>volatile 关键字用于表示可以被多个线程异步修改的成员变量。<br>volatile是一种轻量级的同步机制，它主要有两个特性：一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化。</p>
+</blockquote>
+<h3 id="throw-和-throws"><a href="#throw-和-throws" class="headerlink" title="throw 和 throws"></a>throw 和 throws</h3><blockquote>
+<p>throw语句用在方法体内，表示抛出异常，由方法体内的语句处理。<br>throws主要是声明这个方法可能会抛出这种类型的异常，使它的调用者知道要捕获这个异常。</p>
+</blockquote>
 
           
         
@@ -2263,181 +2421,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2018/12/04/算法设计与分析-Week14/"/>
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Li Jiangtao"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="zhulinyin"/>
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/12/04/算法设计与分析-Week14/" class="post-title-link" itemprop="url">算法设计与分析-Week14</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">post.posted</span>
-              
-
-              
-                
-              
-
-              <time title="post.createdsymbol.colon2018-12-04 16:59:58" itemprop="dateCreated datePublished" datetime="2018-12-04T16:59:58+08:00">2018-12-04</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">post.edited</span>
-                
-                <time title="post.modifiedsymbol.colon2019-01-27 10:26:56" itemprop="dateModified" datetime="2019-01-27T10:26:56+08:00">2019-01-27</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Create-Maximum-Number"><a href="#Create-Maximum-Number" class="headerlink" title="Create Maximum Number"></a>Create Maximum Number</h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
-<p>Given two arrays of length m and n with digits 0-9 representing two numbers. Create the maximum number of length k &lt;= m + n from digits of the two. The relative order of the digits from the same array must be preserved. Return an array of the k digits.</p>
-</blockquote>
-<p><strong>Note:</strong> You should try to optimize your time and space complexity.</p>
-<p><strong>Example 1:</strong></p>
-<blockquote>
-<p><strong>Input:</strong><br>nums1 = [3, 4, 6, 5]<br>nums2 = [9, 1, 2, 5, 8, 3]<br>k = 5<br><strong>Output:</strong> [9, 8, 6, 5, 3]  </p>
-</blockquote>
-<p><strong>Example 2:</strong></p>
-<blockquote>
-<p><strong>Input:</strong><br>nums1 = [6, 7]<br>nums2 = [6, 0, 4]<br>k = 5<br><strong>Output:</strong> [6, 7, 6, 0, 4]  </p>
-</blockquote>
-<p><strong>Example 3:</strong></p>
-<blockquote>
-<p><strong>Input:</strong><br>nums1 = [3, 9]<br>nums2 = [8, 9]<br>k = 3<br><strong>Output:</strong> [9, 8, 9]</p>
-</blockquote>
-<h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><p>本题给定了两个数组和一个整数k，要在两个数组中，一共选出k个数，使得组成的数字最大，且选出的数字相对顺序不能变化。<br><strong>思路：</strong> 对于两个数组我们不是很方便直接计算，而如果在一个数组中选m个数，使得组成的数字最大，那就好做很多，因此我们只需要在一个数组中选m个数，在另一个数组中选k-m个数，最后将两组选出的数合并起来，即可得到我们想要的解。那么接下来的问题就分解为以下几个问题：  </p>
-<ol>
-<li>如何从一个数组中选m个数，使得组成的数字最大。对于一个给定长度的数字来说，其高位决定了它的大小，因此我们应该尽可能让这个数的高位更大。假如数组长度为n，给定整数为m，起始位置为k，那么在下标为k到n-m中找一个最大的数作为最高位，并记录该最高位的下标赋值给k，重复以上过程不断找到次高位，即可得到想要的数。</li>
-<li>如何合并两个数组，使得结果最大。与上面的思路类似，同样是尽量使得组成的数字的高位更大，因此我写了一个greater的函数，用来判断两个数组的第一个不一样的数的大小关系。</li>
-</ol>
-<h2 id="源代码"><a href="#源代码" class="headerlink" title="源代码"></a>源代码</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; maxNumber(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; nums2, <span class="keyword">int</span> k) &#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ans(k, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">int</span> n = nums1.size();</span><br><span class="line">        <span class="keyword">int</span> m = nums2.size();</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i = max(k - m, <span class="number">0</span>); i &lt;= k &amp;&amp; i &lt;= n; i++) &#123;</span><br><span class="line">            <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; cur = merge(maxArray(nums1, i), maxArray(nums2, k - i), k);</span><br><span class="line">            <span class="keyword">if</span>(greater(cur, <span class="number">0</span>, ans, <span class="number">0</span>)) &#123;</span><br><span class="line">                ans = cur;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; maxArray(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nums, <span class="keyword">int</span> k) &#123;</span><br><span class="line">        <span class="keyword">int</span> n = nums.size();</span><br><span class="line">        <span class="keyword">if</span>(k == n) &#123;</span><br><span class="line">            <span class="keyword">return</span> nums;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; res(k, <span class="number">0</span>);</span><br><span class="line">        <span class="keyword">int</span> cur = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> pre = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(k &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">int</span> i = n - k;</span><br><span class="line">            <span class="keyword">while</span>(i &gt;= pre) &#123;</span><br><span class="line">                <span class="keyword">if</span>(res[cur] &lt;= nums[i]) &#123;</span><br><span class="line">                    res[cur] = nums[i];</span><br><span class="line">                    j = i + <span class="number">1</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                i--;</span><br><span class="line">            &#125;</span><br><span class="line">            cur++;</span><br><span class="line">            k--;</span><br><span class="line">            pre = j;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> res;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; merge(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nums1, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nums2, <span class="keyword">int</span> k) &#123;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; ans(k);</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, j = <span class="number">0</span>, r = <span class="number">0</span>; r &lt; k; ++r)</span><br><span class="line">            ans[r] = greater(nums1, i, nums2, j) ? nums1[i++] : nums2[j++];</span><br><span class="line">        <span class="keyword">return</span> ans;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">greater</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nums1, <span class="keyword">int</span> i, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; nums2, <span class="keyword">int</span> j)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (i &lt; nums1.size() &amp;&amp; j &lt; nums2.size() &amp;&amp; nums1[i] == nums2[j]) &#123;</span><br><span class="line">            i++;</span><br><span class="line">            j++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> j == nums2.size() || (i &lt; nums1.size() &amp;&amp; nums1[i] &gt; nums2[j]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2484,7 +2467,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">44</span>
+                    <span class="site-state-item-count">45</span>
                     <span class="site-state-item-name">state.posts</span>
                   </a>
                 </div>
@@ -2587,7 +2570,7 @@
 
 
 
-  <div class="theme-info">footer.theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> v7.1.1</div>
+  <div class="theme-info">footer.theme – <a href="https://theme-next.org" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> v7.1.1</div>
 
 
 
@@ -2676,6 +2659,7 @@
 
 
   <script src="/js/schemes/muse.js?v=7.1.1"></script>
+
 
 
 
