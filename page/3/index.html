@@ -293,6 +293,154 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/02/01/JVM、Dalvik、ART总结/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/02/01/JVM、Dalvik、ART总结/" class="post-title-link" itemprop="url">JVM、Dalvik、ART总结</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-02-01 16:44:41 / 修改时间：17:01:55" itemprop="dateCreated datePublished" datetime="2019-02-01T16:44:41+08:00">2019-02-01</time>
+            
+
+            
+              
+
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <ul>
+<li>Dalvik是Google公司自己设计用于Android平台的虚拟机。Dalvik虚拟机是Google等厂商合作开发的Android移动设备平台的核心组成部分之一。它可以支持已转换为 .dex（即Dalvik Executable）格式的Java应用程序的运行，.dex格式是专为Dalvik设计的一种压缩格式，适合内存和处理器速度有限的系统。Dalvik 经过优化，允许在有限的内存中同时运行多个虚拟机的实例，并且每一个Dalvik 应用作为一个独立的Linux 进程执行。独立的进程可以防止在虚拟机崩溃的时候所有程序都被关闭。</li>
+<li>相比于jar文件包含多个.class文件，每个.class文件里面包含了该类的头信息（如编译版本）、常量池、类信息、域、方法、属性等等，当JVM加载该.jar文件的时候，会加载里面的所有的.class文件，这样会很慢，而移动设备的内存本来就很小，不可能像JVM这样加载，所以它使用的不是.jar文件，而是.apk文件，该文件里面只包含了一个.dex文件，这个.dex文件里面将所有的.class里面所包含的信息全部整合在一起了，这样再加载就很快了。.class文件存在很多的冗余信息，dex工具会去除冗余信息，并把所有的.class文件整合到.dex文件中。减少了I/O操作，提高了类的查找速度。</li>
+<li>Dalvik指令集是基于寄存器的架构，执行特有的文件格式——dex字节码（适合内存和处理器速度有限的系统）。而JVM是基于栈的。相对于基于栈的JVM而言，基于寄存器的Dalvik VM实现虽然牺牲了一些平台无关性，但是它在代码的执行效率上要更胜一筹。</li>
+<li><strong>Dalvik与ART的区别：</strong> 在Dalvik下，应用每次运行都需要通过即时编译器（JIT）将字节码转换为机器码，即每次都要编译加运行，这虽然会使安装过程比较快，但是会拖慢应用的运行效率。而在ART环境中，应用在第一次安装的时候，字节码就会预编译（AOT）成机器码，这样的话，虽然应用得安装会变慢，但是以后每次启动执行的时候，都可以直接运行，因此运行效率会提高。预编译也可以明显改善电池续航，因为应用程序每次运行时不用重复编译了，从而减少了 CPU 的使用频率，降低了能耗，但是字节码解释成机器码后，占用的存储空间会变大。</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/31/handler机制总结/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1019,6 +1167,178 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java关键字及其作用/"/>
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Li Jiangtao"/>
+      <meta itemprop="description" content=""/>
+      <meta itemprop="image" content="/images/avatar.gif"/>
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="zhulinyin"/>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                
+                <a href="/2019/01/28/Java关键字及其作用/" class="post-title-link" itemprop="url">Java关键字及其作用</a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-01-28 16:24:01" itemprop="dateCreated datePublished" datetime="2019-01-28T16:24:01+08:00">2019-01-28</time>
+            
+
+            
+              
+
+              
+                
+                <span class="post-meta-divider">|</span>
+                
+
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-02-01 17:51:38" itemprop="dateModified" datetime="2019-02-01T17:51:38+08:00">2019-02-01</time>
+              
+            
+          </span>
+
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="native"><a href="#native" class="headerlink" title="native"></a>native</h3><blockquote>
+<p>native 关键字可以应用于方法，以指示该方法是用 Java 以外的语言实现的。</p>
+</blockquote>
+<h3 id="strictfp"><a href="#strictfp" class="headerlink" title="strictfp"></a>strictfp</h3><blockquote>
+<p>strictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令人满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点规范IEEE-754来执行。因此如果想让浮点运算更加精确，而且不会因为不同的硬件平台所执行的结果不一致的话，那就请用关键字strictfp。<br>可以将一个类、接口以及方法声明为strictfp，但是不允许对接口中的方法以及构造函数声明strictfp关键字</p>
+</blockquote>
+<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><blockquote>
+<p>synchronized 关键字可以应用于方法或语句块，使得该代码块一次只能被一个线程执行。<br>如果应用于静态方法，那么，当该方法一次由一个线程执行时，整个类将被锁定。<br>如果应用于实例方法，那么，当该方法一次由一个线程访问时，该实例将被锁定。<br>如果应用于对象或数组，当关联的代码块一次由一个线程执行时，对象或数组将被锁定。</p>
+</blockquote>
+<h3 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h3><blockquote>
+<p>transient 关键字可以应用于类的成员变量，使得当该类的实例被序列化时，该变量不被序列化。</p>
+</blockquote>
+<h3 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h3><blockquote>
+<p>volatile 关键字用于表示可以被多个线程异步修改的成员变量。<br>volatile是一种轻量级的同步机制，它主要有两个特性：一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化。</p>
+</blockquote>
+<h3 id="throw-和-throws"><a href="#throw-和-throws" class="headerlink" title="throw 和 throws"></a>throw 和 throws</h3><blockquote>
+<p>throw语句用在方法体内，表示抛出异常，由方法体内的语句处理。<br>throws主要是声明这个方法可能会抛出这种类型的异常，使它的调用者知道要捕获这个异常。</p>
+</blockquote>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java内存回收机制/"/>
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1149,178 +1469,6 @@
 <li>常量对象引用。</li>
 <li>本地方法区中的对象引用。</li>
 </ol>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2019/01/28/Java关键字及其作用/"/>
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Li Jiangtao"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="zhulinyin"/>
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/01/28/Java关键字及其作用/" class="post-title-link" itemprop="url">Java关键字及其作用</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2019-01-28 16:24:01" itemprop="dateCreated datePublished" datetime="2019-01-28T16:24:01+08:00">2019-01-28</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-02-01 17:51:38" itemprop="dateModified" datetime="2019-02-01T17:51:38+08:00">2019-02-01</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h3 id="native"><a href="#native" class="headerlink" title="native"></a>native</h3><blockquote>
-<p>native 关键字可以应用于方法，以指示该方法是用 Java 以外的语言实现的。</p>
-</blockquote>
-<h3 id="strictfp"><a href="#strictfp" class="headerlink" title="strictfp"></a>strictfp</h3><blockquote>
-<p>strictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令人满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点规范IEEE-754来执行。因此如果想让浮点运算更加精确，而且不会因为不同的硬件平台所执行的结果不一致的话，那就请用关键字strictfp。<br>可以将一个类、接口以及方法声明为strictfp，但是不允许对接口中的方法以及构造函数声明strictfp关键字</p>
-</blockquote>
-<h3 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h3><blockquote>
-<p>synchronized 关键字可以应用于方法或语句块，使得该代码块一次只能被一个线程执行。<br>如果应用于静态方法，那么，当该方法一次由一个线程执行时，整个类将被锁定。<br>如果应用于实例方法，那么，当该方法一次由一个线程访问时，该实例将被锁定。<br>如果应用于对象或数组，当关联的代码块一次由一个线程执行时，对象或数组将被锁定。</p>
-</blockquote>
-<h3 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h3><blockquote>
-<p>transient 关键字可以应用于类的成员变量，使得当该类的实例被序列化时，该变量不被序列化。</p>
-</blockquote>
-<h3 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h3><blockquote>
-<p>volatile 关键字用于表示可以被多个线程异步修改的成员变量。<br>volatile是一种轻量级的同步机制，它主要有两个特性：一是保证共享变量对所有线程的可见性；二是禁止指令重排序优化。</p>
-</blockquote>
-<h3 id="throw-和-throws"><a href="#throw-和-throws" class="headerlink" title="throw 和 throws"></a>throw 和 throws</h3><blockquote>
-<p>throw语句用在方法体内，表示抛出异常，由方法体内的语句处理。<br>throws主要是声明这个方法可能会抛出这种类型的异常，使它的调用者知道要捕获这个异常。</p>
-</blockquote>
 
           
         
@@ -2109,325 +2257,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://zhulinyin.github.io/2018/12/21/算法设计与分析-有容量设施选址问题/"/>
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Li Jiangtao"/>
-      <meta itemprop="description" content=""/>
-      <meta itemprop="image" content="/images/avatar.gif"/>
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="zhulinyin"/>
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2018/12/21/算法设计与分析-有容量设施选址问题/" class="post-title-link" itemprop="url">算法设计与分析-有容量设施选址问题</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-
-              
-                
-              
-
-              <time title="创建时间：2018-12-21 08:53:15" itemprop="dateCreated datePublished" datetime="2018-12-21T08:53:15+08:00">2018-12-21</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">更新于</span>
-                
-                <time title="修改时间：2019-01-27 10:27:09" itemprop="dateModified" datetime="2019-01-27T10:27:09+08:00">2019-01-27</time>
-              
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h1 id="Capacitated-Facility-Location-Problem"><a href="#Capacitated-Facility-Location-Problem" class="headerlink" title="Capacitated Facility Location Problem"></a>Capacitated Facility Location Problem</h1><h2 id="题目描述"><a href="#题目描述" class="headerlink" title="题目描述"></a>题目描述</h2><blockquote>
-<p>Suppose there are n facilities and m customers. We wish to choose:<br>(1) which of the n facilities to open<br>(2) the assignment of customers to facilities<br>The objective is to minimize the sum of the opening cost and the assignment cost.</p>
-</blockquote>
-<p><strong>Note:</strong> The total demand assigned to a facility must not exceed its capacity.</p>
-<p><strong>input:</strong><br><img src="/2018/12/21/算法设计与分析-有容量设施选址问题/1.png" alt="图1"></p>
-<h2 id="解题思路"><a href="#解题思路" class="headerlink" title="解题思路"></a>解题思路</h2><h3 id="算法一：贪心算法"><a href="#算法一：贪心算法" class="headerlink" title="算法一：贪心算法"></a>算法一：贪心算法</h3><p>该算法主要的贪心策略为：创建一个bool二维数组alloc，alloc[i][j]表示第i个顾客可以分配到第j个设施。在整个assignmentCost表中找到cost最小且可以被分配的assignmentCost[i][j]，该cost对应顾客i和设施j，如果该设施没有足够的容量给该顾客，那么将alloc[i][j]标记为false；如果该设施有足够的容量，就将该顾客分配给该设施，并将alloc[i]标记为false。</p>
-<h3 id="主要代码"><a href="#主要代码" class="headerlink" title="主要代码"></a>主要代码</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">获取贪心算法执行后的状态</span></span><br><span class="line"><span class="comment">State.cost:该状态的费用</span></span><br><span class="line"><span class="comment">State.occupy:每个设施已分配的空间</span></span><br><span class="line"><span class="comment">State.assign:每个顾客所分配的设施</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line">State Greedy::getBestState() &#123;</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; assign(customer, <span class="number">-1</span>);</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; occupy(facility, <span class="number">0</span>);</span><br><span class="line">	<span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;&gt; alloc(customer, <span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;(facility, <span class="literal">true</span>));</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; customer; i++) &#123;</span><br><span class="line">		<span class="keyword">int</span> custom, faci;</span><br><span class="line">		<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">			findMin(alloc, custom, faci);</span><br><span class="line">			<span class="comment">/*该设施容量足够*/</span></span><br><span class="line">			<span class="keyword">if</span> (occupy[faci] + demand[custom] &lt;= capacity[faci]) &#123;</span><br><span class="line">				<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; alloc[custom].size(); j++) &#123;</span><br><span class="line">					alloc[custom][j] = <span class="literal">false</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				occupy[faci] += demand[custom];</span><br><span class="line">				assign[custom] = faci;</span><br><span class="line">				<span class="keyword">break</span>;</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="comment">/*该设施容量不够*/</span></span><br><span class="line">			<span class="keyword">else</span> &#123;</span><br><span class="line">				alloc[custom][faci] = <span class="literal">false</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">double</span> cost = calculateCost(occupy, assign); <span class="comment">//计算cost</span></span><br><span class="line">	<span class="keyword">return</span> State(cost, occupy, assign);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">找到cost最小且可以被分配的顾客和设施</span></span><br><span class="line"><span class="comment">alloc[i][j]:顾客i是否可以分配到设施j</span></span><br><span class="line"><span class="comment">custom:找到的顾客</span></span><br><span class="line"><span class="comment">faci:找到的设施</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">void</span> Greedy::findMin(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="built_in">vector</span>&lt;<span class="keyword">bool</span>&gt;&gt; &amp;alloc, <span class="keyword">int</span> &amp;custom, <span class="keyword">int</span> &amp;faci) &#123;</span><br><span class="line">	<span class="keyword">int</span> m = INT_MAX;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; assignmentCost.size(); i++) &#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; assignmentCost[i].size(); j++) &#123;</span><br><span class="line">			<span class="keyword">if</span> (alloc[i][j] &amp;&amp; assignmentCost[i][j] &lt; m) &#123;</span><br><span class="line">				m = assignmentCost[i][j];</span><br><span class="line">				custom = i;</span><br><span class="line">				faci = j;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">计算cost</span></span><br><span class="line"><span class="comment">occupy:每个设施已分配的空间</span></span><br><span class="line"><span class="comment">assign:每个顾客分配的设施</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">double</span> Greedy::calculateCost(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; &amp;occupy, <span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;assign) &#123;</span><br><span class="line">	<span class="keyword">double</span> cost = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; facility; i++) &#123;</span><br><span class="line">		cost += (occupy[i] &gt; <span class="number">0</span>) ? openCost[i] : <span class="number">0</span>; <span class="comment">//判断该设施是否已分配，如果是，则加上开启该设施的代价</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; customer; i++) &#123;</span><br><span class="line">		cost += assignmentCost[i][assign[i]];</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> cost;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="输出"><a href="#输出" class="headerlink" title="输出"></a>输出</h3><table width="100%">
-<tr><td></td><td>Result</td><td>Time(s)</td></tr>
-<tr><td>p1</td><td>9307</td><td>0.005</td></tr>
-<tr><td>p2</td><td>7993</td><td>0.004</td></tr>
-<tr><td>p3</td><td>9993</td><td>0.005</td></tr>
-<tr><td>p4</td><td>11993</td><td>0.004</td></tr>
-<tr><td>p5</td><td>9220</td><td>0.005</td></tr>
-<tr><td>p6</td><td>7906</td><td>0.004</td></tr>
-<tr><td>p7</td><td>9906</td><td>0.005</td></tr>
-<tr><td>p8</td><td>11906</td><td>0.004</td></tr>
-<tr><td>p9</td><td>9040</td><td>0.005</td></tr>
-<tr><td>p10</td><td>7726</td><td>0.004</td></tr>
-<tr><td>p11</td><td>9726</td><td>0.006</td></tr>
-<tr><td>p12</td><td>11726</td><td>0.004</td></tr>
-<tr><td>p13</td><td>12032</td><td>0.007</td></tr>
-<tr><td>p14</td><td>9180</td><td>0.007</td></tr>
-<tr><td>p15</td><td>13180</td><td>0.008</td></tr>
-<tr><td>p16</td><td>17180</td><td>0.009</td></tr>
-<tr><td>p17</td><td>12032</td><td>0.009</td></tr>
-<tr><td>p18</td><td>9180</td><td>0.009</td></tr>
-<tr><td>p19</td><td>13180</td><td>0.008</td></tr>
-<tr><td>p20</td><td>17180</td><td>0.009</td></tr>
-<tr><td>p21</td><td>12032</td><td>0.009</td></tr>
-<tr><td>p22</td><td>9180</td><td>0.008</td></tr>
-<tr><td>p23</td><td>13180</td><td>0.008</td></tr>
-<tr><td>p24</td><td>17180</td><td>0.008</td></tr>
-<tr><td>p25</td><td>19248</td><td>0.054</td></tr>
-<tr><td>p26</td><td>16182</td><td>0.054</td></tr>
-<tr><td>p27</td><td>21582</td><td>0.055</td></tr>
-<tr><td>p28</td><td>26982</td><td>0.054</td></tr>
-<tr><td>p29</td><td>19224</td><td>0.054</td></tr>
-<tr><td>p30</td><td>16158</td><td>0.072</td></tr>
-<tr><td>p31</td><td>21558</td><td>0.053</td></tr>
-<tr><td>p32</td><td>26958</td><td>0.056</td></tr>
-<tr><td>p33</td><td>19055</td><td>0.054</td></tr>
-<tr><td>p34</td><td>15989</td><td>0.054</td></tr>
-<tr><td>p35</td><td>21389</td><td>0.055</td></tr>
-<tr><td>p36</td><td>26789</td><td>0.056</td></tr>
-<tr><td>p37</td><td>19055</td><td>0.052</td></tr>
-<tr><td>p38</td><td>15989</td><td>0.053</td></tr>
-<tr><td>p39</td><td>21389</td><td>0.054</td></tr>
-<tr><td>p40</td><td>26789</td><td>0.055</td></tr>
-<tr><td>p41</td><td>7103</td><td>0.009</td></tr>
-<tr><td>p42</td><td>9957</td><td>0.015</td></tr>
-<tr><td>p43</td><td>12448</td><td>0.018</td></tr>
-<tr><td>p44</td><td>7222</td><td>0.009</td></tr>
-<tr><td>p45</td><td>9848</td><td>0.016</td></tr>
-<tr><td>p46</td><td>12639</td><td>0.018</td></tr>
-<tr><td>p47</td><td>6490</td><td>0.009</td></tr>
-<tr><td>p48</td><td>9044</td><td>0.015</td></tr>
-<tr><td>p49</td><td>12420</td><td>0.018</td></tr>
-<tr><td>p50</td><td>10060</td><td>0.011</td></tr>
-<tr><td>p51</td><td>11396</td><td>0.019</td></tr>
-<tr><td>p52</td><td>10764</td><td>0.012</td></tr>
-<tr><td>p53</td><td>12834</td><td>0.022</td></tr>
-<tr><td>p54</td><td>10143</td><td>0.011</td></tr>
-<tr><td>p55</td><td>11938</td><td>0.022</td></tr>
-<tr><td>p56</td><td>23882</td><td>0.087</td></tr>
-<tr><td>p57</td><td>32882</td><td>0.083</td></tr>
-<tr><td>p58</td><td>53882</td><td>0.081</td></tr>
-<tr><td>p59</td><td>39121</td><td>0.084</td></tr>
-<tr><td>p60</td><td>23882</td><td>0.081</td></tr>
-<tr><td>p61</td><td>32882</td><td>0.082</td></tr>
-<tr><td>p62</td><td>53882</td><td>0.082</td></tr>
-<tr><td>p63</td><td>39121</td><td>0.083</td></tr>
-<tr><td>p64</td><td>23882</td><td>0.082</td></tr>
-<tr><td>p65</td><td>32882</td><td>0.082</td></tr>
-<tr><td>p66</td><td>53882</td><td>0.084</td></tr>
-<tr><td>p67</td><td>39671</td><td>0.085</td></tr>
-<tr><td>p68</td><td>23882</td><td>0.082</td></tr>
-<tr><td>p69</td><td>32882</td><td>0.08</td></tr>
-<tr><td>p70</td><td>53882</td><td>0.081</td></tr>
-<tr><td>p71</td><td>39121</td><td>0.082</td></tr>
-</table>
-
-<h3 id="算法二：模拟退火"><a href="#算法二：模拟退火" class="headerlink" title="算法二：模拟退火"></a>算法二：模拟退火</h3><p>模拟退火算法是一种通用概率演算法，用来在一个大的搜寻空间内找寻命题的最优解。其出发点是基于物理中固体物质的退火过程与一般组合优化问题之间的相似性。模拟退火算法是一种通用的优化算法，其物理退火过程由加温过程、等温过程、冷却过程这三部分组成。<br>模拟退火最重要的部分就是状态产生函数，我在实现中随机采用三种邻域搜索策略的其中一种，一是随机将一位顾客转移到另一个设施，二是随机交换两位顾客，三是随机关闭一个设施。除此之外，模拟退火通常还有一些参数需要手动调整，如初温，末温，降温系数，内循环迭代次数等。</p>
-<h3 id="主要代码-1"><a href="#主要代码-1" class="headerlink" title="主要代码"></a>主要代码</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">模拟退火过程</span></span><br><span class="line"><span class="comment">beginTem:初温</span></span><br><span class="line"><span class="comment">endTem:末温</span></span><br><span class="line"><span class="comment">cool:降温系数</span></span><br><span class="line"><span class="comment">iteration:内循环迭代次数</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">void</span> SA::run(<span class="keyword">double</span> beginTem, <span class="keyword">double</span> endTem, <span class="keyword">double</span> cool, <span class="keyword">int</span> iteration) &#123;</span><br><span class="line">	<span class="comment">/*十次模拟退火过程取其中最好的一次*/</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> count = <span class="number">0</span>; count &lt; <span class="number">10</span>; count++) &#123;</span><br><span class="line">		genRandomState(); <span class="comment">//随机产生一个当前状态</span></span><br><span class="line">		bestStateForEveryIteration = curState; <span class="comment">//记录每次循环的最好状态</span></span><br><span class="line">		<span class="keyword">double</span> tem = beginTem;</span><br><span class="line">		<span class="comment">/*模拟退火主过程*/</span></span><br><span class="line">		<span class="keyword">while</span> (tem &gt;= endTem) &#123;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; iteration; i++) &#123;</span><br><span class="line">				<span class="keyword">int</span> ran = rand() % <span class="number">5</span>; <span class="comment">//产生一个随机数，根据随机数选择邻域策略</span></span><br><span class="line">				<span class="comment">/*随机关闭一个设施*/</span></span><br><span class="line">				<span class="keyword">if</span> (ran &lt; <span class="number">1</span>) &#123;</span><br><span class="line">					State nextState = closeRandomFacility();</span><br><span class="line">					<span class="keyword">if</span> (<span class="built_in">exp</span>((curState.cost - nextState.cost) / tem) &gt;= rand() % <span class="number">100</span> / <span class="number">100.0</span>) &#123;</span><br><span class="line">						curState = nextState;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="comment">/*随机交换两位顾客*/</span></span><br><span class="line">				<span class="keyword">else</span> <span class="keyword">if</span> (ran &lt; <span class="number">3</span>) &#123;</span><br><span class="line">					State nextState = exchangeTwoCustomer();</span><br><span class="line">					<span class="keyword">if</span> (<span class="built_in">exp</span>((curState.cost - nextState.cost) / tem) &gt;= rand() % <span class="number">100</span> / <span class="number">100.0</span>) &#123;</span><br><span class="line">						curState = nextState;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="comment">/*随机将一位顾客转移到另一个设施*/</span></span><br><span class="line">				<span class="keyword">else</span> &#123;</span><br><span class="line">					State nextState = moveCustomerToAnotherFacility();</span><br><span class="line">					<span class="keyword">if</span> (<span class="built_in">exp</span>((curState.cost - nextState.cost) / tem) &gt;= rand() % <span class="number">100</span> / <span class="number">100.0</span>) &#123;</span><br><span class="line">						curState = nextState;</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">				<span class="comment">/*更新本次循环的最好状态*/</span></span><br><span class="line">				<span class="keyword">if</span> (curState.cost &lt; bestStateForEveryIteration.cost) &#123;</span><br><span class="line">					bestStateForEveryIteration = curState;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">			tem *= cool; <span class="comment">//降温</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="built_in">cout</span> &lt;&lt; bestStateForEveryIteration.cost &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">		<span class="comment">/*保存十次循环的最好状态*/</span></span><br><span class="line">		<span class="keyword">if</span> (bestStateForEveryIteration.cost &lt; bestState.cost)</span><br><span class="line">			bestState = bestStateForEveryIteration;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机产生一个初始状态*/</span></span><br><span class="line"><span class="keyword">void</span> SA::genRandomState() &#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		curState.assign = <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;(customer);</span><br><span class="line">		curState.occupy = <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt;(facility, <span class="number">0</span>);</span><br><span class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; customer; i++) &#123;</span><br><span class="line">			curState.assign[i] = rand() % facility;</span><br><span class="line">			curState.occupy[curState.assign[i]] += demand[i];</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> (isFeasible(curState.occupy)) &#123;</span><br><span class="line">			curState.cost = calculateCost(curState.occupy, curState.assign);</span><br><span class="line">			<span class="keyword">break</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机将一位顾客转移到另一个设施*/</span></span><br><span class="line">State SA::moveCustomerToAnotherFacility() &#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		<span class="keyword">int</span> index = rand() % customer; <span class="comment">//随机选择一位顾客</span></span><br><span class="line">		<span class="keyword">int</span> newFacility = rand() % facility; <span class="comment">//随机选择一个设施</span></span><br><span class="line">		<span class="keyword">if</span> (curState.occupy[newFacility] + demand[index] &lt;= capacity[newFacility]) &#123;</span><br><span class="line">			State nextState = curState;</span><br><span class="line">			nextState.occupy[nextState.assign[index]] -= demand[index];</span><br><span class="line">			nextState.assign[index] = newFacility;</span><br><span class="line">			nextState.occupy[newFacility] += demand[index];</span><br><span class="line">			nextState.cost = calculateCost(nextState.occupy, nextState.assign);</span><br><span class="line">			<span class="keyword">return</span> nextState;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机交换两位顾客*/</span></span><br><span class="line">State SA::exchangeTwoCustomer() &#123;</span><br><span class="line">	<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">		<span class="keyword">int</span> index1 = rand() % customer; <span class="comment">//随机选择顾客1</span></span><br><span class="line">		<span class="keyword">int</span> index2 = rand() % customer; <span class="comment">//随机选择顾客2</span></span><br><span class="line">		<span class="keyword">if</span> (curState.occupy[curState.assign[index1]] - demand[index1] + demand[index2] &lt;= capacity[curState.assign[index1]]</span><br><span class="line">			&amp;&amp; curState.occupy[curState.assign[index2]] - demand[index2] + demand[index1] &lt;= capacity[curState.assign[index2]]) &#123;</span><br><span class="line">			State nextState = curState;</span><br><span class="line">			nextState.occupy[nextState.assign[index1]] = nextState.occupy[nextState.assign[index1]] - demand[index1] + demand[index2];</span><br><span class="line">			nextState.occupy[nextState.assign[index2]] = nextState.occupy[nextState.assign[index2]] - demand[index2] + demand[index1];</span><br><span class="line">			<span class="keyword">int</span> temp = nextState.assign[index1];</span><br><span class="line">			nextState.assign[index1] = nextState.assign[index2];</span><br><span class="line">			nextState.assign[index2] = temp;</span><br><span class="line">			nextState.cost = calculateCost(nextState.occupy, nextState.assign);</span><br><span class="line">			<span class="keyword">return</span> nextState;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*随机关闭一个设施*/</span></span><br><span class="line">State SA::closeRandomFacility() &#123;</span><br><span class="line">	<span class="keyword">int</span> closeFacility = rand() % facility; <span class="comment">//随机选择一个要关闭的设施</span></span><br><span class="line">	State nextState = curState;</span><br><span class="line">	nextState.occupy[closeFacility] = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; customer; j++) &#123;</span><br><span class="line">		<span class="comment">/*找到分配到要关闭设施的顾客*/</span></span><br><span class="line">		<span class="keyword">if</span> (nextState.assign[j] == closeFacility) &#123;</span><br><span class="line">			<span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">				<span class="keyword">int</span> newFacility = rand() % facility; <span class="comment">//随机为该顾客选择一个新设施</span></span><br><span class="line">				<span class="keyword">if</span> (nextState.occupy[newFacility] + demand[j] &lt;= capacity[newFacility]) &#123;</span><br><span class="line">					nextState.assign[j] = newFacility;</span><br><span class="line">					nextState.occupy[newFacility] += demand[j];</span><br><span class="line">					<span class="keyword">break</span>;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	nextState.cost = calculateCost(nextState.occupy, nextState.assign);</span><br><span class="line">	<span class="keyword">return</span> nextState;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">判断当前设施的占用状态是否可行</span></span><br><span class="line"><span class="comment">occupy:设施的占用状态</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">bool</span> SA::isFeasible(<span class="keyword">const</span> <span class="built_in">vector</span>&lt;<span class="keyword">double</span>&gt; &amp;occupy) &#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; occupy.size(); i++) &#123;</span><br><span class="line">		<span class="keyword">if</span> (occupy[i] &gt; capacity[i]) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="输出-1"><a href="#输出-1" class="headerlink" title="输出"></a>输出</h3><table width="100%">
-<tr><td></td><td>Result</td><td>Time(s)</td></tr>
-<tr><td>p1</td><td>8950</td><td>2.581</td></tr>
-<tr><td>p2</td><td>8011</td><td>2.588</td></tr>
-<tr><td>p3</td><td>9525</td><td>2.592</td></tr>
-<tr><td>p4</td><td>11063</td><td>2.643</td></tr>
-<tr><td>p5</td><td>9119</td><td>2.786</td></tr>
-<tr><td>p6</td><td>7841</td><td>2.702</td></tr>
-<tr><td>p7</td><td>9759</td><td>2.721</td></tr>
-<tr><td>p8</td><td>11189</td><td>2.731</td></tr>
-<tr><td>p9</td><td>8711</td><td>2.505</td></tr>
-<tr><td>p10</td><td>7767</td><td>2.503</td></tr>
-<tr><td>p11</td><td>9181</td><td>2.509</td></tr>
-<tr><td>p12</td><td>10453</td><td>2.514</td></tr>
-<tr><td>p13</td><td>9444</td><td>2.53</td></tr>
-<tr><td>p14</td><td>8015</td><td>2.523</td></tr>
-<tr><td>p15</td><td>9744</td><td>2.506</td></tr>
-<tr><td>p16</td><td>11679</td><td>2.518</td></tr>
-<tr><td>p17</td><td>9258</td><td>2.495</td></tr>
-<tr><td>p18</td><td>7900</td><td>2.51</td></tr>
-<tr><td>p19</td><td>10007</td><td>2.521</td></tr>
-<tr><td>p20</td><td>11965</td><td>2.53</td></tr>
-<tr><td>p21</td><td>8686</td><td>2.47</td></tr>
-<tr><td>p22</td><td>7909</td><td>2.497</td></tr>
-<tr><td>p23</td><td>9872</td><td>2.464</td></tr>
-<tr><td>p24</td><td>11444</td><td>2.469</td></tr>
-<tr><td>p25</td><td>15214</td><td>4.129</td></tr>
-<tr><td>p26</td><td>14073</td><td>4.123</td></tr>
-<tr><td>p27</td><td>16139</td><td>4.106</td></tr>
-<tr><td>p28</td><td>18126</td><td>4.1</td></tr>
-<tr><td>p29</td><td>15433</td><td>4.127</td></tr>
-<tr><td>p30</td><td>13485</td><td>4.143</td></tr>
-<tr><td>p31</td><td>16344</td><td>4.133</td></tr>
-<tr><td>p32</td><td>19387</td><td>4.145</td></tr>
-<tr><td>p33</td><td>14511</td><td>4.096</td></tr>
-<tr><td>p34</td><td>12636</td><td>4.099</td></tr>
-<tr><td>p35</td><td>15439</td><td>4.108</td></tr>
-<tr><td>p36</td><td>17748</td><td>4.105</td></tr>
-<tr><td>p37</td><td>13732</td><td>4.094</td></tr>
-<tr><td>p38</td><td>13508</td><td>4.093</td></tr>
-<tr><td>p39</td><td>15310</td><td>4.07</td></tr>
-<tr><td>p40</td><td>17069</td><td>4.077</td></tr>
-<tr><td>p41</td><td>6920</td><td>3.215</td></tr>
-<tr><td>p42</td><td>6570</td><td>2.972</td></tr>
-<tr><td>p43</td><td>6271</td><td>2.836</td></tr>
-<tr><td>p44</td><td>7962</td><td>3.294</td></tr>
-<tr><td>p45</td><td>7568</td><td>2.972</td></tr>
-<tr><td>p46</td><td>7171</td><td>2.861</td></tr>
-<tr><td>p47</td><td>7081</td><td>3.298</td></tr>
-<tr><td>p48</td><td>6762</td><td>2.997</td></tr>
-<tr><td>p49</td><td>6664</td><td>2.883</td></tr>
-<tr><td>p50</td><td>9235</td><td>3.424</td></tr>
-<tr><td>p51</td><td>8574</td><td>3.286</td></tr>
-<tr><td>p52</td><td>9735</td><td>3.542</td></tr>
-<tr><td>p53</td><td>10140</td><td>3.29</td></tr>
-<tr><td>p54</td><td>9475</td><td>3.646</td></tr>
-<tr><td>p55</td><td>8809</td><td>3.282</td></tr>
-<tr><td>p56</td><td>29207</td><td>4.951</td></tr>
-<tr><td>p57</td><td>36679</td><td>4.978</td></tr>
-<tr><td>p58</td><td>48192</td><td>4.994</td></tr>
-<tr><td>p59</td><td>38646</td><td>4.996</td></tr>
-<tr><td>p60</td><td>29440</td><td>4.896</td></tr>
-<tr><td>p61</td><td>33582</td><td>4.887</td></tr>
-<tr><td>p62</td><td>43497</td><td>4.898</td></tr>
-<tr><td>p63</td><td>35568</td><td>4.885</td></tr>
-<tr><td>p64</td><td>29247</td><td>4.888</td></tr>
-<tr><td>p65</td><td>33168</td><td>4.875</td></tr>
-<tr><td>p66</td><td>42706</td><td>4.87</td></tr>
-<tr><td>p67</td><td>34610</td><td>4.928</td></tr>
-<tr><td>p68</td><td>28324</td><td>4.896</td></tr>
-<tr><td>p69</td><td>34992</td><td>4.886</td></tr>
-<tr><td>p70</td><td>43708</td><td>4.934</td></tr>
-<tr><td>p71</td><td>35096</td><td>4.938</td></tr>
-</table>
-
-<h2 id="算法对比"><a href="#算法对比" class="headerlink" title="算法对比"></a>算法对比</h2><ul>
-<li>速度：从时间上可以看出，贪心算法运行速度很快，而模拟退火因为每一轮都跑了十次，所以速度较慢。</li>
-<li>结果：贪心算法的结果没有模拟退火好。尤其是贪心策略没有考虑设施开启时的费用，仅考虑分配顾客时的费用，容易陷入局部最优。而模拟退火在整个大的搜索空间求解，并通过几种邻域搜索策略，即使陷入局部最优解，也有几率可以跳出，最终得到的解与全局最优解更加接近。</li>
-</ul>
-<h2 id="实验思考"><a href="#实验思考" class="headerlink" title="实验思考"></a>实验思考</h2><p>在实现贪心算法时，我后来考虑到了把设施的开启费用加进去，我将整个顾客分配损失表assignmentCost每一列加上了对应设施的开启费用，然后重复之前的贪心策略，选取费用最小的进行分配，如果分配成功且之前该设施未开启，就把assignmentCost的该列减去开启费用，即开启该设施。然而做了这个改进之后并没有之前的效果好，感觉应该是因为这种贪心策略会使得很多顾客挤在某几个设施。<br>在实现模拟退火时，一开始我实现了两种邻域搜索策略，即随机将一位顾客分配到另一个设施和随机交换两位顾客，在观察结果时我发现，几乎每个设施都打开了，因此我引入了第三种邻域搜索策略，即随机关闭一个设施，并使得这种操作的概率较低，这样做似乎比较容易跳出局部最优，效果挺好。</p>
-<p>具体每个测试样例的详细结果和项目源码请参考：<a href="https://github.com/zhulinyin/CFLP" target="_blank" rel="noopener">github</a></p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2474,7 +2303,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">45</span>
+                    <span class="site-state-item-count">46</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
